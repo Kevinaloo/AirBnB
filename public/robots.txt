@@ -1,9 +1,0 @@
-User-agent: *
-Disallow: /admin
-Disallow: /api/
-Disallow: /.netlify/
-
-# Allow all public guest-facing pages
-Allow: /
-
-Sitemap: https://shikazhomes.netlify.app/sitemap.xml
