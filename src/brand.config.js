@@ -14,17 +14,22 @@
 export const BRAND = {
   // ── Identity ──────────────────────────────────────────────────
   // Full business name as shown in nav/footer. Keep it as two parts
-  // (name + accent) if you want the gold-italic second word styling
-  // used across the site — see `nameAccent` below. If the brand is a
-  // single word, just put it all in `name` and leave `nameAccent` "".
-  name: "Shikaz",
-  nameAccent: "Homes",          // rendered in italic gold next to `name`
-  fullName: "Shikaz Homes",     // used in plain-text contexts (meta tags, alt text)
+  // (name + accent) — name is the main word, nameAccent is italic & gradient.
+  // Leave nameAccent "" to use the full name in a single style.
+  name: "Bridge",
+  nameAccent: "Homes",
+  fullName: "Bridge Homes",
+
+  // ── Logo ────────────────────────────────────────────────────────
+  // Set to a URL for an image logo, leave "" to use the text logo.
+  // When set, the nav renders <img> instead of the typed name.
+  logoUrl: "",
+  logoHeight: 36,
 
   // ── Location ──────────────────────────────────────────────────
   city: "Nairobi",
   country: "Kenya",
-  timezone: "Africa/Nairobi",   // used for .ics calendar exports
+  timezone: "Africa/Nairobi",
   // Fallback map center used when a precise pin isn't available yet
   // (e.g. a freshly-imported listing before the host confirms it).
   defaultLat: -1.2921,
