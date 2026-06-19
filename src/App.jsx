@@ -3,34 +3,49 @@ import { supabase } from "./supabase.js";
 import { BRAND, CONCIERGE_SYSTEM_PROMPT } from "./brand.config.js";
 
 // ─── DESIGN TOKENS ────────────────────────────────────────────────
+// "Breezy Premium" — coral + turquoise + warm white
+// Bright, international, never seen in African short-stay before.
 const C = {
+  // Core brand
+  primary:    "#FF6B6B",           // vivid coral-red — energy, warmth, memorable
+  primaryDark:"#E85555",           // coral hover state
+  primaryDim: "rgba(255,107,107,0.10)",
+  teal:       "#4ECDC4",           // fresh turquoise — trust, premium, coastal
+  tealDark:   "#38B2AC",
+  tealDim:    "rgba(78,205,196,0.12)",
+  // Accent / CTA
+  gold:       "#FF6B6B",           // mapped so existing CTA refs stay coral
+  goldLight:  "#FF8E8E",
+  goldDim:    "rgba(255,107,107,0.10)",
   // Backgrounds
-  obsidian:"#FDFAF5",     // page background — warm white
-  ink:"#F7F2EA",          // section alt background — cream
-  card:"#FFFFFF",         // card background — white
-  cardHover:"#FEFCF7",    // card hover — very warm white
+  obsidian:   "#FFFFFF",           // page bg — pure white
+  ink:        "#F8F9FF",           // section alt — icy blue-white
+  card:       "#FFFFFF",
+  cardHover:  "#FAFCFF",
+  bgWarm:     "#FFF5F3",           // warm blush tint for hero sections
+  bgCool:     "#F0FFFE",           // aqua tint for alternate sections
   // Borders
-  border:"rgba(197,151,58,0.22)",
-  borderHover:"rgba(14,43,31,0.3)",
-  // Brand
-  gold:"#C5973A",
-  goldLight:"#E8C870",
-  goldDim:"rgba(197,151,58,0.10)",
+  border:     "#E8ECF4",
+  borderHover:"#C5D0E6",
   // Text
-  cream:"#1C1C1C",        // primary text — charcoal
-  muted:"#6B6B5F",        // muted text
-  mutedLight:"#4A4A42",   // slightly lighter muted
-  white:"#FDFAF5",        // used for text on dark backgrounds
-  light:"#F7F2EA",         // light text on dark backgrounds
-  // Brand greens
-  sage:"#0E2B1F",         // forest green — nav, headers
-  sageLight:"#2D5C44",    // sage
+  cream:      "#1A1A2E",           // near-navy — richer than plain black
+  muted:      "#6B7280",
+  mutedLight: "#9CA3AF",
+  white:      "#FFFFFF",
+  light:      "#F8F9FF",
+  // Navigation (bright white nav instead of dark)
+  navBg:      "rgba(255,255,255,0.97)",
+  navText:    "#1A1A2E",
+  navMuted:   "#6B7280",
   // Semantic
-  error:"#DC2626",
-  success:"#16A34A",
-  successDim:"rgba(22,163,74,0.10)",
-  booked:"rgba(220,38,38,0.08)",
-  blockedText:"#DC2626",
+  success:    "#10B981",
+  successDim: "rgba(16,185,129,0.10)",
+  error:      "#EF4444",
+  booked:     "rgba(239,68,68,0.06)",
+  blockedText:"#EF4444",
+  // Kept for legacy refs
+  sage:       "#1A1A2E",
+  sageLight:  "#374151",
 };
 
 // ─── HELPERS ──────────────────────────────────────────────────────
@@ -113,12 +128,12 @@ const DEFAULT_LISTINGS = [
 ];
 
 const BADGE_STYLE = {
-  "Guest Favourite":{ bg:"rgba(212,175,95,0.15)", color:C.gold,      border:`1px solid rgba(212,175,95,0.35)` },
-  "Popular":        { bg:"rgba(94,181,120,0.12)", color:"#5EB578",   border:"1px solid rgba(94,181,120,0.3)"  },
-  "New":            { bg:"rgba(100,160,220,0.12)",color:"#64A0DC",   border:"1px solid rgba(100,160,220,0.3)" },
-  "Business Pick":  { bg:"rgba(160,130,220,0.12)",color:"#A082DC",   border:"1px solid rgba(160,130,220,0.3)" },
-  "Design Pick":    { bg:"rgba(220,120,100,0.12)",color:"#DC7864",   border:"1px solid rgba(220,120,100,0.3)" },
-  "Luxury":         { bg:"rgba(212,175,95,0.20)", color:C.goldLight, border:`1px solid rgba(212,175,95,0.5)`  },
+  "Guest Favourite":{ bg:"rgba(255,107,107,0.12)", color:"#E85555",   border:"1px solid rgba(255,107,107,0.35)" },
+  "Popular":        { bg:"rgba(78,205,196,0.12)",  color:"#38B2AC",   border:"1px solid rgba(78,205,196,0.35)"  },
+  "New":            { bg:"rgba(99,179,237,0.12)",  color:"#3182CE",   border:"1px solid rgba(99,179,237,0.35)"  },
+  "Business Pick":  { bg:"rgba(167,139,250,0.12)", color:"#7C3AED",   border:"1px solid rgba(167,139,250,0.35)" },
+  "Design Pick":    { bg:"rgba(251,146,60,0.12)",  color:"#EA580C",   border:"1px solid rgba(251,146,60,0.35)"  },
+  "Luxury":         { bg:"rgba(236,201,75,0.15)",  color:"#B7791F",   border:"1px solid rgba(236,201,75,0.4)"   },
 };
 
 async function loadListings() {
@@ -161,49 +176,49 @@ async function saveBookings(d) {
 
 // ─── GLOBAL STYLES ────────────────────────────────────────────────
 const GS = `
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,600&family=DM+Sans:wght@300;400;500;600&display=swap');
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:#FDFAF5;color:#1C1C1C;overflow-x:hidden}
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#F7F2EA}::-webkit-scrollbar-thumb{background:rgba(197,151,58,0.45);border-radius:3px}
-@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+body{font-family:'Plus Jakarta Sans','DM Sans',sans-serif;background:#FFFFFF;color:#1A1A2E;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#F8F9FF}::-webkit-scrollbar-thumb{background:rgba(255,107,107,0.4);border-radius:4px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes shimmer{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
-@keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
-@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
-@keyframes popIn{0%{opacity:0;transform:scale(0.7) translateY(60px)}70%{transform:scale(1.04) translateY(-6px)}100%{opacity:1;transform:scale(1) translateY(0)}}
-@keyframes popOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0.8) translateY(40px)}}
-@keyframes floatUp{0%{opacity:0;transform:translateY(0)}10%{opacity:1}80%{opacity:1}100%{opacity:0;transform:translateY(-80px)}}
-@keyframes swing{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
-@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(120px) rotate(720deg);opacity:0}}
-@keyframes firework{0%{transform:scale(0);opacity:1}100%{transform:scale(1.5);opacity:0}}
-@keyframes ribbonSlide{0%{transform:translateX(-110%)}100%{transform:translateX(0)}}
-@keyframes heartBeat{0%,100%{transform:scale(1)}14%{transform:scale(1.3)}28%{transform:scale(1)}42%{transform:scale(1.2)}70%{transform:scale(1)}}
-@keyframes starTwinkle{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(0.6)}}
+@keyframes pulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.02)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+@keyframes rippleOut{0%{transform:scale(0.6);opacity:0.8}100%{transform:scale(2.2);opacity:0}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 @keyframes rotateSlow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes drawLine{from{stroke-dashoffset:1000}to{stroke-dashoffset:0}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 12px rgba(255,107,107,0.35)}50%{box-shadow:0 0 28px rgba(255,107,107,0.65),0 0 50px rgba(255,107,107,0.25)}}
+@keyframes tealGlow{0%,100%{box-shadow:0 0 12px rgba(78,205,196,0.35)}50%{box-shadow:0 0 28px rgba(78,205,196,0.65)}}
+@keyframes popIn{0%{opacity:0;transform:scale(0.7) translateY(40px)}70%{transform:scale(1.03) translateY(-3px)}100%{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes bounceIn{0%{transform:scale(0.3);opacity:0}50%{transform:scale(1.05)}70%{transform:scale(0.95)}100%{transform:scale(1);opacity:1}}
-@keyframes glowPulse{0%,100%{box-shadow:0 0 20px rgba(197,151,58,0.4)}50%{box-shadow:0 0 60px rgba(197,151,58,0.9),0 0 100px rgba(197,151,58,0.4)}}
 @keyframes slideInLeft{from{transform:translateX(-100%);opacity:0}to{transform:translateX(0);opacity:1}}
 @keyframes slideInRight{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
-@keyframes flagWave{0%,100%{transform:skewX(0deg)}25%{transform:skewX(-3deg)}75%{transform:skewX(3deg)}}
-@keyframes drip{0%{transform:scaleY(0);transform-origin:top}100%{transform:scaleY(1);transform-origin:top}}
-@keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-@keyframes typingDot{0%,60%,100%{transform:translateY(0);opacity:0.5}30%{transform:translateY(-6px);opacity:1}}
-@keyframes conciergeRing{0%{transform:scale(1);opacity:0.6}100%{transform:scale(1.9);opacity:0}}
-@keyframes conciergeOpen{0%{opacity:0;transform:scale(0.85) translateY(20px);transform-origin:bottom right}100%{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(120px) rotate(720deg);opacity:0}}
+@keyframes heartBeat{0%,100%{transform:scale(1)}14%{transform:scale(1.3)}28%{transform:scale(1)}42%{transform:scale(1.15)}70%{transform:scale(1)}}
+@keyframes typingDot{0%,60%,100%{transform:translateY(0);opacity:0.4}30%{transform:translateY(-6px);opacity:1}}
+@keyframes conciergeOpen{0%{opacity:0;transform:scale(0.88) translateY(16px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes conciergeRing{0%{transform:scale(1);opacity:0.5}100%{transform:scale(1.8);opacity:0}}
+@keyframes splashOrb{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(20px,-15px) scale(1.1)}66%{transform:translate(-15px,10px) scale(0.92)}}
+@keyframes splashShimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes splashParticle{0%{transform:translateY(0) translateX(0) scale(1);opacity:0.9}100%{transform:translateY(-100px) translateX(var(--dx,0px)) scale(0);opacity:0}}
 @keyframes scanline{0%{top:0%}100%{top:100%}}
+@keyframes floatUp{0%{opacity:0;transform:translateY(0)}10%{opacity:1}80%{opacity:1}100%{opacity:0;transform:translateY(-80px)}}
+@keyframes starTwinkle{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(0.6)}}
 @keyframes disco{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
-.fade-up{animation:fadeUp 0.7s ease both}
-input,select,textarea,button{font-family:inherit}
-a{text-decoration:none;color:inherit}
+@keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes swing{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top}100%{transform:scaleY(1);transform-origin:top}}
+@keyframes ribbonSlide{0%{transform:translateX(-110%)}100%{transform:translateX(0)}}
+@keyframes flagWave{0%,100%{transform:skewX(0deg)}25%{transform:skewX(-2deg)}75%{transform:skewX(2deg)}}
+@keyframes popOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0.85) translateY(30px)}}
 `;
 
-// ─── NAV ──────────────────────────────────────────────────────────
 // ─── SPLASH SCREEN ────────────────────────────────────────────────
-// Host-editable from Settings. Reads {slug}:splash from Supabase.
-// Falls back to BRAND defaults if not configured.
 
 async function loadSplashConfig() {
   try {
@@ -216,165 +231,64 @@ async function saveSplashConfig(cfg) {
 }
 
 function SplashScreen({ onDone, config }) {
-  const title    = config?.title    || BRAND.name;
-  const accent   = config?.accent   || BRAND.nameAccent;
-  const tagline  = config?.tagline  || `Premium stays · ${BRAND.city}`;
+  const title   = config?.title   || BRAND.name;
+  const accent  = config?.accent  || BRAND.nameAccent;
+  const tagline = config?.tagline || `Premium stays · ${BRAND.city}`;
   const [phase, setPhase] = useState(0);
-  // 0=line drawing, 1=letters rise, 2=tagline, 3=fade out
+
   useEffect(()=>{
-    const t1=setTimeout(()=>setPhase(1),400);
-    const t2=setTimeout(()=>setPhase(2),1100);
-    const t3=setTimeout(()=>setPhase(3),2000);
-    const t4=setTimeout(()=>onDone(),2850);
-    return ()=>{ clearTimeout(t1);clearTimeout(t2);clearTimeout(t3);clearTimeout(t4); };
+    const t0=setTimeout(()=>setPhase(1),300);
+    const t1=setTimeout(()=>setPhase(2),800);
+    const t2=setTimeout(()=>setPhase(3),1400);
+    const t3=setTimeout(()=>setPhase(4),2300);
+    const t4=setTimeout(()=>onDone(),3000);
+    return()=>{ [t0,t1,t2,t3,t4].forEach(clearTimeout); };
   },[]);
 
-  const letters = (title+accent).split("").map((ch,i)=>({ch,isAccent:i>=title.length}));
+  const titleLetters  = title.split("").map((ch,i)=>({ch,isAccent:false,i}));
+  const accentLetters = accent.split("").map((ch,i)=>({ch,isAccent:true,i:titleLetters.length+i}));
+  const allLetters    = [...titleLetters,...accentLetters];
 
   return (
-    <div style={{
-      position:"fixed",inset:0,zIndex:9999,
-      background:"#0A2218",
-      display:"flex",alignItems:"center",justifyContent:"center",
-      flexDirection:"column",
-      opacity: phase>=3 ? 0 : 1,
-      transition: phase>=3 ? "opacity 0.75s cubic-bezier(0.4,0,0.2,1)" : "none",
-      pointerEvents:"none",
-    }}>
-      <style>{`
-        @keyframes splashLineGrow {
-          0% { transform: scaleX(0); opacity:0; }
-          40% { opacity:1; }
-          100% { transform: scaleX(1); opacity:1; }
-        }
-        @keyframes splashLetterRise {
-          0% { opacity:0; transform: translateY(32px) skewY(4deg); filter:blur(4px); }
-          60% { opacity:1; filter:blur(0); }
-          100% { opacity:1; transform: translateY(0) skewY(0deg); }
-        }
-        @keyframes splashTagline {
-          0% { opacity:0; transform: translateY(12px) letterSpacing 0.5em; }
-          100% { opacity:1; transform: translateY(0); }
-        }
-        @keyframes splashOrb {
-          0%,100% { transform: translate(0,0) scale(1); }
-          33% { transform: translate(30px,-20px) scale(1.15); }
-          66% { transform: translate(-20px,15px) scale(0.9); }
-        }
-        @keyframes splashShimmer {
-          0% { background-position: -200% center; }
-          100% { background-position: 200% center; }
-        }
-        @keyframes splashPulse {
-          0%,100% { opacity:0.4; transform:scale(1); }
-          50% { opacity:0.7; transform:scale(1.04); }
-        }
-        @keyframes splashParticle {
-          0% { transform: translateY(0) translateX(0) scale(1); opacity:0.8; }
-          100% { transform: translateY(-120px) translateX(var(--dx,0px)) scale(0); opacity:0; }
-        }
-      `}</style>
-
-      {/* Ambient orbs */}
-      <div style={{position:"absolute",top:"15%",left:"10%",width:"380px",height:"380px",borderRadius:"50%",background:"radial-gradient(circle,rgba(197,151,58,0.09),transparent 65%)",animation:"splashOrb 6s ease-in-out infinite",pointerEvents:"none"}}/>
-      <div style={{position:"absolute",bottom:"10%",right:"8%",width:"280px",height:"280px",borderRadius:"50%",background:"radial-gradient(circle,rgba(76,175,125,0.07),transparent 65%)",animation:"splashOrb 8s ease-in-out infinite reverse",pointerEvents:"none"}}/>
-      <div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",width:"600px",height:"600px",borderRadius:"50%",background:"radial-gradient(circle,rgba(197,151,58,0.04),transparent 65%)",animation:"splashPulse 3s ease-in-out infinite",pointerEvents:"none"}}/>
-
-      {/* Fine grid */}
-      <div style={{position:"absolute",inset:0,backgroundImage:"radial-gradient(circle at 1px 1px,rgba(197,151,58,0.04) 1px,transparent 0)",backgroundSize:"32px 32px",pointerEvents:"none"}}/>
-
-      {/* Content */}
-      <div style={{position:"relative",textAlign:"center",padding:"0 2rem"}}>
-
-        {/* The horizon line */}
-        <div style={{
-          width:"260px",height:"1px",
-          background:`linear-gradient(90deg,transparent,${C.gold},${C.goldLight},${C.gold},transparent)`,
-          margin:"0 auto 2.4rem",
-          transformOrigin:"center",
-          transform: phase>=1?"scaleX(1)":"scaleX(0)",
-          opacity: phase>=1?1:0,
-          transition:"transform 0.7s cubic-bezier(0.16,1,0.3,1), opacity 0.4s ease",
-          boxShadow:`0 0 12px rgba(197,151,58,0.6)`,
-        }}/>
-
-        {/* Brand name — letters rise */}
-        <div style={{overflow:"hidden",display:"flex",justifyContent:"center",gap:"0.02em",marginBottom:"0.4rem"}}>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(2.8rem,8vw,5rem)",lineHeight:1,letterSpacing:"0.04em",display:"flex",gap:"0.02em"}}>
-            {letters.map(({ch,isAccent},i)=>(
-              <span key={i} style={{
-                display:"inline-block",
-                color: isAccent ? C.gold : "#F7F2EA",
-                fontStyle: isAccent ? "italic" : "normal",
-                opacity: phase>=1?1:0,
-                transform: phase>=1?"translateY(0) skewY(0deg)":"translateY(32px) skewY(4deg)",
-                filter: phase>=1?"blur(0)":"blur(4px)",
-                transition:`opacity 0.5s ease ${i*0.06}s, transform 0.6s cubic-bezier(0.16,1,0.3,1) ${i*0.06}s, filter 0.4s ease ${i*0.06}s`,
-                background: isAccent ? `linear-gradient(135deg,${C.gold},${C.goldLight},${C.gold})` : "none",
-                backgroundSize: isAccent?"200% auto":undefined,
-                WebkitBackgroundClip: isAccent?"text":undefined,
-                WebkitTextFillColor: isAccent?"transparent":undefined,
-                animation: isAccent&&phase>=1 ? "splashShimmer 2.5s linear infinite" : "none",
-              }}>
-                {ch===" "?"\u00A0":ch}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Tagline */}
-        <div style={{
-          fontSize:"clamp(0.65rem,1.5vw,0.82rem)",
-          letterSpacing:"0.35em",
-          textTransform:"uppercase",
-          color:"rgba(247,242,234,0.45)",
-          fontWeight:400,
-          opacity: phase>=2?1:0,
-          transform: phase>=2?"translateY(0)":"translateY(10px)",
-          transition:"opacity 0.6s ease, transform 0.6s ease",
-        }}>{tagline}</div>
-
-        {/* Bottom line */}
-        <div style={{
-          width:"80px",height:"1px",
-          background:`linear-gradient(90deg,transparent,rgba(197,151,58,0.5),transparent)`,
-          margin:"1.8rem auto 0",
-          opacity: phase>=2?1:0,
-          transition:"opacity 0.6s ease 0.2s",
-        }}/>
-
-        {/* Floating particles */}
-        {phase>=2 && [
-          {left:"20%",delay:"0s",dx:"-15px"},{left:"35%",delay:"0.15s",dx:"8px"},
-          {left:"50%",delay:"0.08s",dx:"-5px"},{left:"65%",delay:"0.22s",dx:"12px"},
-          {left:"80%",delay:"0.05s",dx:"-10px"},
-        ].map((p,i)=>(
-          <div key={i} style={{
-            position:"absolute",bottom:"120%",left:p.left,
-            width:"3px",height:"3px",borderRadius:"50%",
-            background:C.gold,
-            "--dx":p.dx,
-            animation:`splashParticle 1.5s ease-out ${p.delay} forwards`,
-            opacity:0,
-          }}/>
+    <div style={{position:"fixed",inset:0,zIndex:9999,background:"#FFFFFF",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",opacity:phase>=4?0:1,transition:phase>=4?"opacity 0.65s cubic-bezier(0.4,0,0.2,1)":"none",pointerEvents:"none",overflow:"hidden"}}>
+      {/* Background orbs */}
+      <div style={{position:"absolute",top:"10%",left:"5%",width:"320px",height:"320px",borderRadius:"50%",background:"radial-gradient(circle,rgba(255,107,107,0.08),transparent 65%)",animation:"splashOrb 7s ease-in-out infinite"}}/>
+      <div style={{position:"absolute",bottom:"10%",right:"5%",width:"260px",height:"260px",borderRadius:"50%",background:"radial-gradient(circle,rgba(78,205,196,0.1),transparent 65%)",animation:"splashOrb 9s ease-in-out infinite reverse"}}/>
+      <div style={{position:"absolute",top:"55%",right:"12%",width:"160px",height:"160px",borderRadius:"50%",background:"radial-gradient(circle,rgba(255,107,107,0.05),transparent 65%)",animation:"splashOrb 11s ease-in-out infinite"}}/>
+      {/* Dot grid */}
+      <div style={{position:"absolute",inset:0,backgroundImage:"radial-gradient(circle at 1px 1px,rgba(78,205,196,0.07) 1px,transparent 0)",backgroundSize:"28px 28px"}}/>
+      {/* Ripple rings */}
+      {phase>=1&&[0,1,2].map(i=>(
+        <div key={i} style={{position:"absolute",width:`${180+i*100}px`,height:`${180+i*100}px`,borderRadius:"50%",border:`${2-i*0.4}px solid rgba(255,107,107,${0.22-i*0.06})`,animation:"rippleOut 1.8s ease-out forwards",animationDelay:`${i*0.2}s`,pointerEvents:"none"}}/>
+      ))}
+      {/* Central circle */}
+      <div style={{width:phase>=2?"52px":"68px",height:phase>=2?"52px":"68px",borderRadius:"50%",background:`linear-gradient(135deg,${C.primary},${C.teal})`,boxShadow:`0 0 ${phase>=2?"14px":"30px"} rgba(255,107,107,${phase>=2?"0.25":"0.45"})`,transition:"all 0.6s cubic-bezier(0.34,1.56,0.64,1)",marginBottom:"1.8rem",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+        <div style={{width:"16px",height:"16px",borderRadius:"50%",background:"rgba(255,255,255,0.92)"}}/>
+      </div>
+      {/* Name letters */}
+      <div style={{display:"flex",justifyContent:"center",alignItems:"baseline",gap:"0.01em",overflow:"hidden",marginBottom:"0.5rem"}}>
+        {allLetters.map(({ch,isAccent,i})=>(
+          <span key={i} style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"clamp(2.8rem,8vw,5.2rem)",fontWeight:isAccent?300:600,fontStyle:isAccent?"italic":"normal",lineHeight:1,display:"inline-block",color:isAccent?C.primary:C.cream,opacity:phase>=2?1:0,transform:phase>=2?"translateY(0) scale(1)":"translateY(28px) scale(0.88)",filter:phase>=2?"blur(0)":"blur(5px)",transition:`opacity 0.5s ease ${i*0.055}s,transform 0.6s cubic-bezier(0.34,1.56,0.64,1) ${i*0.055}s,filter 0.4s ease ${i*0.055}s`,background:isAccent?`linear-gradient(135deg,${C.primary},${C.teal})`:"none",WebkitBackgroundClip:isAccent?"text":undefined,WebkitTextFillColor:isAccent?"transparent":undefined,backgroundSize:isAccent?"200% auto":undefined,animation:isAccent&&phase>=2?"splashShimmer 2s linear infinite":undefined}}>
+            {ch===" "?"\u00A0":ch}
+          </span>
         ))}
       </div>
-
-      {/* Bottom loading bar */}
-      <div style={{position:"absolute",bottom:0,left:0,right:0,height:"2px",background:"rgba(197,151,58,0.1)"}}>
-        <div style={{
-          height:"100%",
-          background:`linear-gradient(90deg,transparent,${C.gold},${C.goldLight},${C.gold},transparent)`,
-          width: phase>=3?"100%": phase>=2?"70%": phase>=1?"40%":"0%",
-          transition:"width 0.8s cubic-bezier(0.4,0,0.2,1)",
-          boxShadow:`0 0 8px rgba(197,151,58,0.8)`,
-        }}/>
+      {/* Teal underline sweep */}
+      <div style={{height:"2px",width:phase>=2?"160px":"0px",background:`linear-gradient(90deg,transparent,${C.teal},${C.primary},transparent)`,borderRadius:"2px",transition:"width 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.4s",marginBottom:"1rem",boxShadow:`0 0 8px rgba(78,205,196,0.5)`}}/>
+      {/* Tagline */}
+      <div style={{fontFamily:"'Plus Jakarta Sans',sans-serif",fontSize:"clamp(0.62rem,1.3vw,0.78rem)",letterSpacing:"0.3em",textTransform:"uppercase",color:C.muted,fontWeight:500,opacity:phase>=3?1:0,transform:phase>=3?"translateY(0)":"translateY(8px)",transition:"all 0.5s ease"}}>{tagline}</div>
+      {/* Particles */}
+      {phase>=3&&[{left:"28%",delay:"0s",dx:"-18px",color:C.primary},{left:"44%",delay:"0.1s",dx:"6px",color:C.teal},{left:"56%",delay:"0.05s",dx:"-6px",color:C.primary},{left:"70%",delay:"0.15s",dx:"16px",color:C.teal}].map((p,i)=>(
+        <div key={i} style={{position:"absolute",bottom:"38%",left:p.left,width:"4px",height:"4px",borderRadius:"50%",background:p.color,"--dx":p.dx,animation:`splashParticle 1.4s ease-out ${p.delay} forwards`,opacity:0}}/>
+      ))}
+      {/* Progress bar */}
+      <div style={{position:"absolute",bottom:0,left:0,right:0,height:"3px",background:C.border}}>
+        <div style={{height:"100%",background:`linear-gradient(90deg,${C.teal},${C.primary})`,width:phase>=4?"100%":phase>=3?"75%":phase>=2?"45%":phase>=1?"18%":"0%",transition:"width 0.7s cubic-bezier(0.4,0,0.2,1)",boxShadow:`0 0 10px rgba(255,107,107,0.5)`}}/>
       </div>
     </div>
   );
 }
 
-// Splash config panel for admin Settings
 function SplashConfigPanel({ onSaved }) {
   const [cfg,setCfg]=useState(null);
   const [loading,setLoading]=useState(true);
@@ -384,7 +298,7 @@ function SplashConfigPanel({ onSaved }) {
 
   useEffect(()=>{
     loadSplashConfig().then(c=>{
-      setCfg(c || { title:BRAND.name, accent:BRAND.nameAccent, tagline:`Premium stays · ${BRAND.city}`, enabled:true });
+      setCfg(c||{title:BRAND.name,accent:BRAND.nameAccent,tagline:`Premium stays · ${BRAND.city}`,enabled:true});
       setLoading(false);
     });
   },[]);
@@ -398,36 +312,30 @@ function SplashConfigPanel({ onSaved }) {
     setTimeout(()=>setMsg(null),3000);
   };
 
-  const inp={width:"100%",background:"#F7F2EA",border:`1px solid ${C.border}`,borderRadius:"5px",padding:"0.7rem 1rem",color:"#1C1C1C",fontSize:"0.88rem",outline:"none",boxSizing:"border-box"};
+  const inp={width:"100%",background:"#F8F9FF",border:`1px solid ${C.border}`,borderRadius:"6px",padding:"0.75rem 1rem",color:C.cream,fontSize:"0.88rem",outline:"none",boxSizing:"border-box"};
 
   if(loading) return <div style={{color:C.muted,fontSize:"0.82rem",padding:"1rem 0"}}>Loading…</div>;
 
   return (
-    <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"10px",padding:"1.8rem",marginBottom:"1.5rem",maxWidth:"520px",boxShadow:"0 2px 12px rgba(14,43,31,0.06)"}}>
+    <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"10px",padding:"1.8rem",marginBottom:"1.5rem",maxWidth:"520px",boxShadow:"0 2px 12px rgba(26,26,46,0.06)"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.2rem"}}>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.1rem",color:"#0E2B1F",fontWeight:400}}>Loading Screen</div>
-        <button onClick={()=>setPreview(true)} style={{background:C.goldDim,border:`1px solid ${C.border}`,borderRadius:"5px",color:"#0E2B1F",fontSize:"0.72rem",fontWeight:600,padding:"0.4rem 0.9rem",cursor:"pointer",letterSpacing:"0.08em"}}>▶ Preview</button>
+        <div style={{fontFamily:"'Fraunces',serif",fontSize:"1.1rem",color:C.cream,fontWeight:400}}>Loading Screen</div>
+        <button onClick={()=>setPreview(true)} style={{background:C.primaryDim,border:`1px solid rgba(255,107,107,0.3)`,borderRadius:"5px",color:C.primary,fontSize:"0.72rem",fontWeight:600,padding:"0.4rem 0.9rem",cursor:"pointer"}}>▶ Preview</button>
       </div>
-
-      <div style={{display:"flex",alignItems:"center",gap:"0.8rem",marginBottom:"1.2rem",padding:"0.7rem 1rem",background:cfg.enabled?"rgba(76,175,125,0.06)":"rgba(224,82,82,0.06)",border:`1px solid ${cfg.enabled?"rgba(76,175,125,0.25)":"rgba(224,82,82,0.2)"}`,borderRadius:"6px"}}>
-        <label style={{display:"flex",alignItems:"center",gap:"0.6rem",cursor:"pointer",flex:1}}>
-          <div onClick={()=>setCfg(c=>({...c,enabled:!c.enabled}))} style={{width:"38px",height:"20px",borderRadius:"10px",background:cfg.enabled?C.success:"rgba(0,0,0,0.15)",position:"relative",transition:"background 0.2s",cursor:"pointer",flexShrink:0}}>
-            <div style={{position:"absolute",top:"2px",left:cfg.enabled?"20px":"2px",width:"16px",height:"16px",borderRadius:"50%",background:"#fff",transition:"left 0.2s",boxShadow:"0 1px 3px rgba(0,0,0,0.2)"}}/>
-          </div>
-          <span style={{fontSize:"0.82rem",color:"#0E2B1F",fontWeight:500}}>Show loading screen to visitors</span>
-        </label>
+      <div style={{display:"flex",alignItems:"center",gap:"0.8rem",marginBottom:"1.2rem",padding:"0.7rem 1rem",background:cfg.enabled?"rgba(16,185,129,0.05)":"rgba(239,68,68,0.05)",border:`1px solid ${cfg.enabled?"rgba(16,185,129,0.2)":"rgba(239,68,68,0.15)"}`,borderRadius:"6px"}}>
+        <div onClick={()=>setCfg(c=>({...c,enabled:!c.enabled}))} style={{width:"38px",height:"20px",borderRadius:"10px",background:cfg.enabled?C.teal:"rgba(0,0,0,0.15)",position:"relative",transition:"background 0.2s",cursor:"pointer",flexShrink:0}}>
+          <div style={{position:"absolute",top:"2px",left:cfg.enabled?"20px":"2px",width:"16px",height:"16px",borderRadius:"50%",background:"#fff",transition:"left 0.2s",boxShadow:"0 1px 3px rgba(0,0,0,0.2)"}}/>
+        </div>
+        <span style={{fontSize:"0.82rem",color:C.cream,fontWeight:500}}>Show loading screen to visitors</span>
       </div>
-
-      {[{lbl:"Brand Name (main text)",key:"title",ph:BRAND.name},{lbl:"Accent Word (shown in gold italic)",key:"accent",ph:BRAND.nameAccent},{lbl:"Tagline (shown below name)",key:"tagline",ph:`Premium stays · ${BRAND.city}`}].map(f=>(
+      {[{lbl:"Brand Name (main text)",key:"title",ph:BRAND.name},{lbl:"Accent Word (gradient italic)",key:"accent",ph:BRAND.nameAccent},{lbl:"Tagline (below name)",key:"tagline",ph:`Premium stays · ${BRAND.city}`}].map(f=>(
         <div key={f.key} style={{marginBottom:"1rem"}}>
           <label style={{display:"block",fontSize:"0.62rem",letterSpacing:"0.18em",textTransform:"uppercase",color:C.muted,marginBottom:"0.35rem"}}>{f.lbl}</label>
-          <input value={cfg[f.key]||""} onChange={e=>setCfg(c=>({...c,[f.key]:e.target.value}))} style={inp} placeholder={f.ph} onFocus={e=>e.target.style.borderColor=C.gold} onBlur={e=>e.target.style.borderColor=C.border}/>
+          <input value={cfg[f.key]||""} onChange={e=>setCfg(c=>({...c,[f.key]:e.target.value}))} style={inp} placeholder={f.ph} onFocus={e=>e.target.style.borderColor=C.primary} onBlur={e=>e.target.style.borderColor=C.border}/>
         </div>
       ))}
-
-      {msg&&<div style={{fontSize:"0.78rem",color:msg.type==="error"?C.error:C.success,marginBottom:"0.8rem",padding:"0.5rem 0.8rem",background:msg.type==="error"?"rgba(224,82,82,0.08)":"rgba(76,175,125,0.08)",borderRadius:"4px"}}>{msg.text}</div>}
-      <button onClick={save} disabled={saving} style={{background:C.gold,color:C.obsidian,border:"none",padding:"0.8rem 1.8rem",borderRadius:"5px",fontSize:"0.8rem",fontWeight:600,cursor:"pointer",letterSpacing:"0.1em"}}>{saving?"Saving…":"Save Changes"}</button>
-
+      {msg&&<div style={{fontSize:"0.78rem",color:msg.type==="error"?C.error:C.success,marginBottom:"0.8rem",padding:"0.5rem 0.8rem",background:msg.type==="error"?"rgba(239,68,68,0.06)":"rgba(16,185,129,0.06)",borderRadius:"4px"}}>{msg.text}</div>}
+      <button onClick={save} disabled={saving} style={{background:`linear-gradient(135deg,${C.primary},${C.teal})`,color:"#fff",border:"none",padding:"0.8rem 1.8rem",borderRadius:"6px",fontSize:"0.8rem",fontWeight:600,cursor:"pointer",letterSpacing:"0.1em"}}>{saving?"Saving…":"Save Changes"}</button>
       {preview&&<SplashScreen config={cfg} onDone={()=>setPreview(false)}/>}
     </div>
   );
@@ -606,10 +514,13 @@ function Nav({ onNavigate, listing }) {
   },[]);
 
   return (
-    <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:900,background:"rgba(14,43,31,0.97)",backdropFilter:"blur(18px)",borderBottom:`1px solid ${scrolled?C.border:"transparent"}`,transition:"all 0.35s ease"}}>
+    <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:900,background:scrolled?"rgba(255,255,255,0.98)":"rgba(255,255,255,0.96)",backdropFilter:"blur(20px)",borderBottom:`1px solid ${scrolled?C.border:"rgba(232,236,244,0.6)"}`,transition:"all 0.3s ease",boxShadow:scrolled?"0 2px 20px rgba(26,26,46,0.08)":"none"}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 1.5rem",height:"64px",maxWidth:"1400px",margin:"0 auto"}}>
-        <button onClick={()=>{onNavigate("home");setMenuOpen(false);}} style={{background:"none",border:"none",cursor:"pointer",fontFamily:"'Playfair Display',serif",fontSize:"1.4rem",fontWeight:600,color:"#F7F2EA",flexShrink:0}}>
-          {BRAND.name}<span style={{color:C.gold,fontStyle:"italic"}}>{BRAND.nameAccent}</span>
+        <button onClick={()=>{onNavigate("home");setMenuOpen(false);}} style={{background:"none",border:"none",cursor:"pointer",fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.45rem",fontWeight:600,color:C.cream,flexShrink:0,letterSpacing:"-0.01em"}}>
+          {BRAND.logoUrl
+  ? <img src={BRAND.logoUrl} alt={BRAND.fullName} style={{height:BRAND.logoHeight+"px",objectFit:"contain"}}/>
+  : <>{BRAND.name}<span style={{background:`linear-gradient(135deg,${C.primary},${C.teal})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",fontStyle:"italic",fontWeight:300}}>{BRAND.nameAccent}</span></>
+}
         </button>
 
         {/* Desktop links */}
@@ -617,10 +528,10 @@ function Nav({ onNavigate, listing }) {
           <div style={{display:"flex",alignItems:"center",gap:"1.5rem"}}>
             <EmergencySOS listing={listing}/>
             {["Listings","About","Contact"].map(l=>(
-              <button key={l} onClick={()=>onNavigate(l.toLowerCase())} style={{background:"none",border:"none",cursor:"pointer",fontSize:"0.75rem",letterSpacing:"0.18em",textTransform:"uppercase",color:"rgba(247,242,234,0.75)",transition:"color 0.2s",padding:"0.25rem 0"}} onMouseEnter={e=>e.target.style.color=C.gold} onMouseLeave={e=>e.target.style.color="rgba(247,242,234,0.75)"}>{l}</button>
+              <button key={l} onClick={()=>onNavigate(l.toLowerCase())} style={{background:"none",border:"none",cursor:"pointer",fontSize:"0.75rem",letterSpacing:"0.14em",textTransform:"uppercase",color:C.navMuted,fontWeight:500,transition:"color 0.2s",padding:"0.25rem 0"}} onMouseEnter={e=>e.target.style.color=C.primary} onMouseLeave={e=>e.target.style.color=C.navMuted}>{l}</button>
             ))}
-            <button onClick={()=>onNavigate("refer")} style={{background:`linear-gradient(135deg,${C.gold},#D4AF37)`,border:"none",cursor:"pointer",fontSize:"0.7rem",letterSpacing:"0.1em",textTransform:"uppercase",color:"#0E2B1F",padding:"0.4rem 0.85rem",borderRadius:"4px",fontWeight:700,transition:"opacity 0.2s"}} onMouseEnter={e=>e.currentTarget.style.opacity="0.85"} onMouseLeave={e=>e.currentTarget.style.opacity="1"}>💰 Refer & Earn</button>
-            <button onClick={()=>onNavigate("admin")} style={{background:"transparent",border:"1px solid rgba(247,242,234,0.3)",color:"#F7F2EA",padding:"0.5rem 1.2rem",fontSize:"0.72rem",fontWeight:500,letterSpacing:"0.12em",textTransform:"uppercase",borderRadius:"3px",cursor:"pointer",transition:"all 0.2s"}} onMouseEnter={e=>{e.target.style.borderColor=C.gold;e.target.style.color=C.gold;}} onMouseLeave={e=>{e.target.style.borderColor="rgba(247,242,234,0.3)";e.target.style.color="#F7F2EA";}}>Host Login</button>
+            <button onClick={()=>onNavigate("refer")} style={{background:`linear-gradient(135deg,${C.primary},${C.teal})`,border:"none",cursor:"pointer",fontSize:"0.7rem",letterSpacing:"0.1em",textTransform:"uppercase",color:"#fff",padding:"0.45rem 1rem",borderRadius:"20px",fontWeight:700,transition:"opacity 0.2s",boxShadow:`0 4px 14px rgba(255,107,107,0.3)`}} onMouseEnter={e=>e.currentTarget.style.opacity="0.88"} onMouseLeave={e=>e.currentTarget.style.opacity="1"}>💰 Refer & Earn</button>
+            <button onClick={()=>onNavigate("admin")} style={{background:"transparent",border:`1.5px solid ${C.border}`,color:C.cream,padding:"0.48rem 1.2rem",fontSize:"0.72rem",fontWeight:600,letterSpacing:"0.1em",textTransform:"uppercase",borderRadius:"20px",cursor:"pointer",transition:"all 0.2s"}} onMouseEnter={e=>{e.currentTarget.style.borderColor=C.primary;e.currentTarget.style.color=C.primary;}} onMouseLeave={e=>{e.currentTarget.style.borderColor=C.border;e.currentTarget.style.color=C.cream;}}>Host Login</button>
           </div>
         )}
 
@@ -628,7 +539,7 @@ function Nav({ onNavigate, listing }) {
         {mobile&&(
           <div style={{display:"flex",alignItems:"center",gap:"0.7rem"}}>
             <EmergencySOS listing={listing}/>
-            <button onClick={()=>setMenuOpen(o=>!o)} style={{background:"none",border:"none",color:"#F7F2EA",fontSize:"1.5rem",cursor:"pointer",padding:"0.25rem",lineHeight:1}}>
+            <button onClick={()=>setMenuOpen(o=>!o)} style={{background:"none",border:"none",color:C.cream,fontSize:"1.5rem",cursor:"pointer",padding:"0.25rem",lineHeight:1}}>
               {menuOpen?"✕":"☰"}
             </button>
           </div>
@@ -637,13 +548,13 @@ function Nav({ onNavigate, listing }) {
 
       {/* Mobile dropdown */}
       {mobile&&menuOpen&&(
-        <div style={{background:"rgba(14,43,31,0.99)",borderTop:"1px solid rgba(197,151,58,0.2)",padding:"1rem 1.5rem 1.5rem",display:"flex",flexDirection:"column",gap:"0.2rem",animation:"fadeIn 0.2s ease"}}>
+        <div style={{background:"rgba(255,255,255,0.99)",borderTop:`1px solid ${C.border}`,padding:"1rem 1.5rem 1.5rem",display:"flex",flexDirection:"column",gap:"0.2rem",animation:"fadeIn 0.2s ease",boxShadow:"0 8px 32px rgba(26,26,46,0.1)"}}>
           {["Listings","About","Contact"].map(l=>(
-            <button key={l} onClick={()=>{onNavigate(l.toLowerCase());setMenuOpen(false);}} style={{background:"none",border:"none",cursor:"pointer",fontSize:"0.9rem",letterSpacing:"0.12em",textTransform:"uppercase",color:"rgba(247,242,234,0.8)",padding:"0.75rem 0",textAlign:"left",borderBottom:"1px solid rgba(247,242,234,0.08)",transition:"color 0.2s"}} onMouseEnter={e=>e.target.style.color=C.gold} onMouseLeave={e=>e.target.style.color="rgba(247,242,234,0.8)"}>{l}</button>
+            <button key={l} onClick={()=>{onNavigate(l.toLowerCase());setMenuOpen(false);}} style={{background:"none",border:"none",cursor:"pointer",fontSize:"0.9rem",letterSpacing:"0.12em",textTransform:"uppercase",color:C.navMuted,padding:"0.75rem 0",textAlign:"left",borderBottom:`1px solid ${C.border}`,fontWeight:500,transition:"color 0.2s"}} onMouseEnter={e=>e.target.style.color=C.primary} onMouseLeave={e=>e.target.style.color=C.navMuted}>{l}</button>
           ))}
-          <button onClick={()=>{onNavigate("mybooking");setMenuOpen(false);}} style={{background:"none",border:"none",cursor:"pointer",fontSize:"0.9rem",letterSpacing:"0.12em",textTransform:"uppercase",color:"rgba(247,242,234,0.8)",padding:"0.75rem 0",textAlign:"left",borderBottom:"1px solid rgba(247,242,234,0.08)",transition:"color 0.2s"}}>My Booking</button>
-          <button onClick={()=>{onNavigate("refer");setMenuOpen(false);}} style={{marginTop:"0.5rem",background:`linear-gradient(135deg,${C.gold},#D4AF37)`,color:"#0E2B1F",border:"none",padding:"0.85rem 1.5rem",fontSize:"0.82rem",fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",borderRadius:"4px",cursor:"pointer",textAlign:"left"}}>💰 Refer & Earn</button>
-          <button onClick={()=>{onNavigate("admin");setMenuOpen(false);}} style={{marginTop:"0.4rem",background:"transparent",border:"1px solid rgba(247,242,234,0.25)",color:"rgba(247,242,234,0.7)",padding:"0.75rem 1.5rem",fontSize:"0.82rem",fontWeight:500,letterSpacing:"0.12em",textTransform:"uppercase",borderRadius:"4px",cursor:"pointer"}}>Host Login</button>
+          <button onClick={()=>{onNavigate("mybooking");setMenuOpen(false);}} style={{background:"none",border:"none",cursor:"pointer",fontSize:"0.9rem",letterSpacing:"0.12em",textTransform:"uppercase",color:C.navMuted,padding:"0.75rem 0",textAlign:"left",borderBottom:`1px solid ${C.border}`,fontWeight:500}}>My Booking</button>
+          <button onClick={()=>{onNavigate("refer");setMenuOpen(false);}} style={{marginTop:"0.6rem",background:`linear-gradient(135deg,${C.primary},${C.teal})`,color:"#fff",border:"none",padding:"0.9rem 1.5rem",fontSize:"0.82rem",fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",borderRadius:"8px",cursor:"pointer",textAlign:"center"}}>💰 Refer & Earn</button>
+          <button onClick={()=>{onNavigate("admin");setMenuOpen(false);}} style={{marginTop:"0.4rem",background:"transparent",border:`1.5px solid ${C.border}`,color:C.cream,padding:"0.75rem 1.5rem",fontSize:"0.82rem",fontWeight:600,letterSpacing:"0.12em",textTransform:"uppercase",borderRadius:"8px",cursor:"pointer",textAlign:"center"}}>Host Login</button>
         </div>
       )}
     </nav>
@@ -693,9 +604,9 @@ function AvailCalendar({ bookedDates=[], checkIn, checkOut, onSelect }) {
   return (
     <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"8px",overflow:"hidden",boxShadow:"0 2px 10px rgba(14,43,31,0.06)"}}>
       {/* Nav */}
-      <div style={{background:"#0E2B1F",padding:"1rem 1.2rem",display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:`1px solid ${C.border}`}}>
+      <div style={{background:"#FFFFFF",padding:"1rem 1.2rem",display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:`1px solid ${C.border}`}}>
         <button onClick={prevM} style={{background:"rgba(255,255,255,0.1)",border:"none",color:"#F7F2EA",width:"30px",height:"30px",borderRadius:"4px",cursor:"pointer",fontSize:"1rem",transition:".2s"}} onMouseEnter={e=>e.target.style.color=C.gold} onMouseLeave={e=>e.target.style.color="#F7F2EA"}>‹</button>
-        <span style={{fontFamily:"'Playfair Display',serif",fontSize:"1rem",color:"#F7F2EA",fontWeight:500}}>{MONTHS[month]} {year}</span>
+        <span style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1rem",color:"#F7F2EA",fontWeight:500}}>{MONTHS[month]} {year}</span>
         <button onClick={nextM} style={{background:"rgba(255,255,255,0.06)",border:"none",color:"#F7F2EA",width:"30px",height:"30px",borderRadius:"4px",cursor:"pointer",fontSize:"1rem",transition:".2s"}} onMouseEnter={e=>e.target.style.color=C.gold} onMouseLeave={e=>e.target.style.color="#F7F2EA"}>›</button>
       </div>
       {/* Day headers */}
@@ -1003,7 +914,7 @@ function PaymentModal({ listing, checkIn, checkOut, guests, onClose, onSuccess, 
             {isDeposit&&<span style={{fontSize:"0.58rem",fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",padding:"0.12rem 0.45rem",background:"rgba(197,151,58,0.12)",color:C.gold,border:`1px solid rgba(197,151,58,0.3)`,borderRadius:"3px"}}>Deposit</span>}
             {holidayDiscount>0&&<span style={{fontSize:"0.58rem",fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",padding:"0.12rem 0.45rem",background:"rgba(76,175,125,0.1)",color:C.success,border:`1px solid rgba(76,175,125,0.3)`,borderRadius:"3px"}}>🎉 {holidayDiscount}% Off</span>}
           </div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.35rem",color:"#0E2B1F"}}>{listing.name}</div>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.35rem",color:"#0E2B1F"}}>{listing.name}</div>
           <div style={{fontSize:"0.8rem",color:C.muted,marginTop:"0.2rem"}}>
             {fmtDate(checkIn)} → {fmtDate(checkOut)} · {nights} night{nights>1?"s":""} · {guests} guest{guests>1?"s":""}
           </div>
@@ -1053,7 +964,7 @@ function PaymentModal({ listing, checkIn, checkOut, guests, onClose, onSuccess, 
         {step==="sending"&&(
           <div style={{textAlign:"center",padding:"2rem 0",animation:"fadeIn 0.3s ease"}}>
             <div style={{width:"50px",height:"50px",border:`3px solid ${C.goldDim}`,borderTop:`3px solid ${C.gold}`,borderRadius:"50%",animation:"spin 0.9s linear infinite",margin:"0 auto 1.5rem"}}/>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"0.5rem"}}>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"0.5rem"}}>
               {name?`Sending to ${name.split(" ")[0]}…`:"Sending STK push…"}
             </div>
             <div style={{fontSize:"0.82rem",color:C.muted,lineHeight:1.7}}>
@@ -1067,7 +978,7 @@ function PaymentModal({ listing, checkIn, checkOut, guests, onClose, onSuccess, 
           <div style={{animation:"fadeIn 0.3s ease"}}>
             <div style={{textAlign:"center",marginBottom:"1.5rem"}}>
               <div style={{fontSize:"3rem",marginBottom:"0.6rem",animation:"heartBeat 1.8s ease infinite"}}>📱</div>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.2rem",color:"#0E2B1F",marginBottom:"0.5rem"}}>Check Your Phone Now</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.2rem",color:"#0E2B1F",marginBottom:"0.5rem"}}>Check Your Phone Now</div>
               <div style={{fontSize:"0.85rem",color:C.muted,lineHeight:1.7}}>
                 M-Pesa STK push sent to<br/>
                 <strong style={{color:C.gold,fontSize:"1rem"}}>+{normalisePhone(phone)}</strong>
@@ -1104,7 +1015,7 @@ function PaymentModal({ listing, checkIn, checkOut, guests, onClose, onSuccess, 
         {step==="polling"&&(
           <div style={{textAlign:"center",padding:"2.5rem 1rem",animation:"fadeIn 0.3s ease"}}>
             <div style={{width:"56px",height:"56px",border:`3px solid ${C.goldDim}`,borderTop:`3px solid ${C.gold}`,borderRadius:"50%",animation:"spin 0.9s linear infinite",margin:"0 auto 1.5rem"}}/>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"0.5rem"}}>Verifying Payment…</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"0.5rem"}}>Verifying Payment…</div>
             <div style={{fontSize:"0.82rem",color:C.muted,marginBottom:"0.3rem"}}>{statusMsg}</div>
             <div style={{fontSize:"0.7rem",color:C.muted,opacity:0.7}}>Ref: {bookingRef}</div>
           </div>
@@ -1115,7 +1026,7 @@ function PaymentModal({ listing, checkIn, checkOut, guests, onClose, onSuccess, 
           <div style={{animation:"fadeIn 0.4s ease"}}>
             <div style={{textAlign:"center",marginBottom:"1.5rem"}}>
               <div style={{width:"56px",height:"56px",background:C.successDim,border:`2px solid ${C.success}`,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",margin:"0 auto 1rem"}}>✓</div>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.3rem",color:"#0E2B1F",marginBottom:"0.4rem"}}>{isDeposit?"Dates Held!":"Booking Confirmed!"}</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.3rem",color:"#0E2B1F",marginBottom:"0.4rem"}}>{isDeposit?"Dates Held!":"Booking Confirmed!"}</div>
               <div style={{fontSize:"0.83rem",color:C.muted}}>{isDeposit?"Deposit received · Dates are reserved":"Payment received · M-Pesa confirmation sent"}</div>
             </div>
             <div style={{background:C.successDim,border:`1px solid rgba(76,175,125,0.25)`,borderRadius:"8px",padding:"1.2rem",marginBottom:isDeposit||holidayDiscount?"0.6rem":"1.2rem"}}>
@@ -1146,7 +1057,7 @@ function PaymentModal({ listing, checkIn, checkOut, guests, onClose, onSuccess, 
         {step==="failed"&&(
           <div style={{textAlign:"center",animation:"fadeIn 0.3s ease"}}>
             <div style={{fontSize:"2.5rem",marginBottom:"0.8rem"}}>⚠️</div>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.2rem",color:"#0E2B1F",marginBottom:"0.5rem"}}>Payment Unsuccessful</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.2rem",color:"#0E2B1F",marginBottom:"0.5rem"}}>Payment Unsuccessful</div>
             <div style={{fontSize:"0.83rem",color:C.muted,lineHeight:1.7,marginBottom:"1.5rem"}}>The transaction was not completed. Please check your M-Pesa balance and try again, or contact us on WhatsApp.</div>
             <div style={{display:"flex",gap:"0.8rem"}}>
               <button onClick={()=>setStep("form")} style={{flex:1,padding:"0.9rem",background:C.gold,color:C.obsidian,border:"none",borderRadius:"6px",fontSize:"0.8rem",fontWeight:600,cursor:"pointer"}}>Try Again</button>
@@ -1205,7 +1116,7 @@ function BookingWidget({ listing, onBookingMade, activeHoliday }) {
             <div style={{fontSize:"0.68rem",fontWeight:700,color:activeHoliday.theme?.accent||C.gold,letterSpacing:"0.05em"}}>{activeHoliday.name} — {holidayDiscount}% Off</div>
             {canBook&&discountSaving>0&&<div style={{fontSize:"0.62rem",color:"rgba(255,255,255,0.6)",marginTop:"0.1rem"}}>You save KES {fmt(discountSaving)} on this booking</div>}
           </div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.3rem",color:activeHoliday.theme?.accent||C.gold,fontWeight:700,flexShrink:0}}>{holidayDiscount}%</div>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.3rem",color:activeHoliday.theme?.accent||C.gold,fontWeight:700,flexShrink:0}}>{holidayDiscount}%</div>
         </div>
       )}
 
@@ -1213,12 +1124,12 @@ function BookingWidget({ listing, onBookingMade, activeHoliday }) {
       <div style={{marginBottom:"1.2rem",display:"flex",alignItems:"baseline",gap:"0.4rem",flexWrap:"wrap"}}>
         {holidayDiscount>0&&canBook
           ? <>
-              <span style={{fontFamily:"'Playfair Display',serif",fontSize:"1.3rem",color:C.muted,textDecoration:"line-through"}}>KES {fmt(listing.pricePerNight)}</span>
-              <span style={{fontFamily:"'Playfair Display',serif",fontSize:"2rem",color:C.gold}}>KES {fmt(Math.round(listing.pricePerNight*(1-holidayDiscount/100)))}</span>
+              <span style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.3rem",color:C.muted,textDecoration:"line-through"}}>KES {fmt(listing.pricePerNight)}</span>
+              <span style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"2rem",color:C.gold}}>KES {fmt(Math.round(listing.pricePerNight*(1-holidayDiscount/100)))}</span>
               <span style={{fontSize:"0.8rem",color:C.muted}}>/night</span>
             </>
           : <>
-              <span style={{fontFamily:"'Playfair Display',serif",fontSize:"2rem",color:C.gold}}>KES {fmt(listing.pricePerNight)}</span>
+              <span style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"2rem",color:C.gold}}>KES {fmt(listing.pricePerNight)}</span>
               <span style={{fontSize:"0.8rem",color:C.muted}}>/night</span>
             </>
         }
@@ -1449,7 +1360,7 @@ function ListingCard({ listing, onClick, activeHoliday }) {
           </div>
         )}
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"0.4rem"}}>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.1rem",color:"#0E2B1F",fontWeight:500,lineHeight:1.2,flex:1}}>{listing.name}</div>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.1rem",color:"#0E2B1F",fontWeight:500,lineHeight:1.2,flex:1}}>{listing.name}</div>
           <div style={{display:"flex",alignItems:"center",gap:"0.25rem",flexShrink:0,marginLeft:"0.8rem"}}>
             <span style={{color:C.gold,fontSize:"0.8rem"}}>★</span>
             <span style={{fontSize:"0.8rem",color:"#1C1C1C",fontWeight:500}}>{listing.rating}</span>
@@ -1468,7 +1379,7 @@ function ListingCard({ listing, onClick, activeHoliday }) {
           <div style={{display:"flex",flexDirection:"column",gap:"0.1rem"}}>
             {disc>0&&<span style={{fontSize:"0.72rem",color:C.muted,textDecoration:"line-through"}}>KES {fmt(listing.pricePerNight)}</span>}
             <div>
-              <span style={{fontFamily:"'Playfair Display',serif",fontSize:"1.25rem",color:disc>0?(isListingDisc?"#DC2626":(t?.accent||C.gold)):C.gold,fontWeight:500}}>KES {fmt(discPrice)}</span>
+              <span style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.25rem",color:disc>0?(isListingDisc?"#DC2626":(t?.accent||C.gold)):C.gold,fontWeight:500}}>KES {fmt(discPrice)}</span>
               <span style={{fontSize:"0.73rem",color:C.muted}}> /night</span>
             </div>
           </div>
@@ -1734,21 +1645,19 @@ function LocationPicker({ lat, lng, onChange }) {
 // see SETUP.md for what to check.
 function openBoltRide({ destLat, destLng, destAddress }) {
   const addressText = destAddress ? `${destAddress}` : `${destLat},${destLng}`;
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(addressText).catch(()=>{});
-  }
-  const deepLink = `https://bolt.eu/action/launch?action=client_open&pickup_latitude=&pickup_longitude=&drop_off_latitude=${destLat}&drop_off_longitude=${destLng}&drop_off_address=${encodeURIComponent(addressText)}`;
-  const fallback = `https://bolt.eu/en/cities/${BRAND.boltCitySlug}/`;
-
+  // Copy address so guest can paste it into Bolt search if needed
+  if (navigator.clipboard) navigator.clipboard.writeText(addressText).catch(()=>{});
+  // bolttaxi:// is Bolt's actual app URI scheme — opens the app directly if installed
+  const appLink = `bolttaxi://request?dropoff_latitude=${destLat}&dropoff_longitude=${destLng}`;
+  // Web fallback if app not installed
+  const webFallback = `https://bolt.eu/en-ke/`;
   const start = Date.now();
-  window.location.href = deepLink;
+  window.location.href = appLink;
   setTimeout(() => {
-    // If we're still here (app didn't open / not installed), go to the
-    // real Bolt city page instead of leaving the guest stuck.
     if (Date.now() - start < 3000 && !document.hidden) {
-      window.location.href = fallback;
+      window.location.href = webFallback;
     }
-  }, 1200);
+  }, 1500);
 }
 
 function ListingPage({ listing, onBack, onNavigate, onBookingMade, activeHoliday }) {
@@ -1768,7 +1677,7 @@ function ListingPage({ listing, onBack, onNavigate, onBookingMade, activeHoliday
               <span style={{...bs,padding:"0.25rem 0.75rem",borderRadius:"3px",fontSize:"0.65rem",fontWeight:600}}>{listing.badge}</span>
               <span style={{fontSize:"0.75rem",color:C.muted}}>{listing.type} · {listing.neighborhood}, {listing.city}</span>
             </div>
-            <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(1.8rem,4vw,3rem)",fontWeight:400,color:"#0E2B1F",marginBottom:"0.3rem"}}>{listing.name}</h1>
+            <h1 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"clamp(1.8rem,4vw,3rem)",fontWeight:400,color:"#0E2B1F",marginBottom:"0.3rem"}}>{listing.name}</h1>
             <div style={{fontSize:"0.9rem",color:C.muted,fontStyle:"italic"}}>{listing.tagline}</div>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:"0.4rem",flexShrink:0}}>
@@ -1812,13 +1721,13 @@ function ListingPage({ listing, onBack, onNavigate, onBookingMade, activeHoliday
               ))}
             </div>
             {/* Description */}
-            <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.5rem",color:"#0E2B1F",marginBottom:"1rem",fontWeight:400}}>About this space</h2>
+            <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.5rem",color:"#0E2B1F",marginBottom:"1rem",fontWeight:400}}>About this space</h2>
             {listing.description.split("\n\n").map((p,i)=>(
               <p key={i} style={{fontSize:"0.92rem",color:C.mutedLight,lineHeight:1.85,marginBottom:"1rem",fontWeight:300}}>{p}</p>
             ))}
             {/* Amenities */}
             <div style={{marginTop:"2.5rem"}}>
-              <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.5rem",color:"#0E2B1F",marginBottom:"1.2rem",fontWeight:400}}>What's included</h2>
+              <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.5rem",color:"#0E2B1F",marginBottom:"1.2rem",fontWeight:400}}>What's included</h2>
               <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:"0.6rem"}}>
                 {listing.amenities.map(a=>(
                   <div key={a} style={{display:"flex",alignItems:"center",gap:"0.7rem",padding:"0.7rem 1rem",background:"#F7F2EA",borderRadius:"4px",border:`1px solid ${C.border}`}}>
@@ -1830,7 +1739,7 @@ function ListingPage({ listing, onBack, onNavigate, onBookingMade, activeHoliday
             </div>
             {/* Rules */}
             <div style={{marginTop:"2.5rem"}}>
-              <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.5rem",color:"#0E2B1F",marginBottom:"1rem",fontWeight:400}}>House Rules</h2>
+              <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.5rem",color:"#0E2B1F",marginBottom:"1rem",fontWeight:400}}>House Rules</h2>
               {listing.houseRules.map(r=>(
                 <div key={r} style={{display:"flex",alignItems:"center",gap:"0.8rem",padding:"0.6rem 0",borderBottom:`1px solid ${C.border}`}}>
                   <span style={{color:C.gold,fontSize:"0.75rem"}}>—</span>
@@ -1851,7 +1760,7 @@ function ListingPage({ listing, onBack, onNavigate, onBookingMade, activeHoliday
             <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",flexWrap:"wrap",gap:"1rem",marginBottom:"1.8rem"}}>
               <div>
                 <div style={{fontSize:"0.65rem",letterSpacing:"0.35em",textTransform:"uppercase",color:C.gold,marginBottom:"0.5rem"}}>Location</div>
-                <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400,marginBottom:"0.3rem"}}>Where you'll be</h2>
+                <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400,marginBottom:"0.3rem"}}>Where you'll be</h2>
                 <div style={{fontSize:"0.9rem",color:C.muted}}>{listing.neighborhood}, {listing.city}, Kenya</div>
               </div>
               <a
@@ -1942,7 +1851,7 @@ function ListingsPage({ listings, onSelect, promoConfig, activeHoliday, onSelect
       <div style={{background:"linear-gradient(180deg,#EEE9E0 0%,#F7F2EA 100%)",padding:"4rem 1.5rem 2rem",borderBottom:`1px solid ${C.border}`}}>
         <div style={{maxWidth:"1200px",margin:"0 auto"}}>
           <div style={{fontSize:"0.68rem",letterSpacing:"0.35em",textTransform:"uppercase",color:C.gold,marginBottom:"0.8rem"}}>Our Portfolio</div>
-          <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(2.5rem,5vw,4rem)",fontWeight:400,color:"#0E2B1F",marginBottom:"1rem"}}>
+          <h1 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"clamp(2.5rem,5vw,4rem)",fontWeight:400,color:"#0E2B1F",marginBottom:"1rem"}}>
             {listings.length} Exceptional <em style={{color:C.gold,fontStyle:"italic"}}>Stays</em>
           </h1>
           <p style={{fontSize:"0.95rem",color:C.muted,maxWidth:"520px",lineHeight:1.8}}>Every listing is personally curated. {BRAND.city}'s best addresses, at your fingertips.</p>
@@ -2007,7 +1916,7 @@ function Hero({ listings, onNavigate }) {
               <span style={{fontSize:"0.6rem",letterSpacing:"0.25em",textTransform:"uppercase",color:C.gold}}>{BRAND.city}'s Premier Short Stays</span>
             </div>
 
-            <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:"2.8rem",fontWeight:400,lineHeight:1.05,color:"#F7F2EA",marginBottom:"1rem",animation:"fadeUp 0.6s ease both"}}>
+            <h1 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"2.8rem",fontWeight:400,lineHeight:1.05,color:"#F7F2EA",marginBottom:"1rem",animation:"fadeUp 0.6s ease both"}}>
               Live Like a<br/><em style={{color:C.gold,fontStyle:"italic"}}>Local Legend</em>
             </h1>
 
@@ -2028,7 +1937,7 @@ function Hero({ listings, onNavigate }) {
             <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"0",paddingTop:"1.2rem",borderTop:"1px solid rgba(247,242,234,0.1)"}}>
               {[{n:"6",l:"Listings"},{n:"4.95",l:"Rating"},{n:"440+",l:"Guests"},{n:"5",l:"Areas"}].map(s=>(
                 <div key={s.l} style={{textAlign:"center"}}>
-                  <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.5rem",color:C.gold,fontWeight:500}}>{s.n}</div>
+                  <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.5rem",color:C.gold,fontWeight:500}}>{s.n}</div>
                   <div style={{fontSize:"0.55rem",letterSpacing:"0.15em",textTransform:"uppercase",color:"rgba(247,242,234,0.4)",marginTop:"0.15rem"}}>{s.l}</div>
                 </div>
               ))}
@@ -2051,7 +1960,7 @@ function Hero({ listings, onNavigate }) {
                 <span style={{fontSize:"0.68rem",letterSpacing:"0.3em",textTransform:"uppercase",color:C.gold}}>{BRAND.city}'s Premier Short Stays</span>
               </div>
 
-              <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(3rem,4vw,5.5rem)",fontWeight:400,lineHeight:1.05,color:"#F7F2EA",marginBottom:"1.6rem",animation:"fadeUp 0.8s ease both"}}>
+              <h1 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"clamp(3rem,4vw,5.5rem)",fontWeight:400,lineHeight:1.05,color:"#F7F2EA",marginBottom:"1.6rem",animation:"fadeUp 0.8s ease both"}}>
                 Live Like a<br/><em style={{color:C.gold,fontStyle:"italic"}}>Local Legend</em>
               </h1>
 
@@ -2075,7 +1984,7 @@ function Hero({ listings, onNavigate }) {
               <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",paddingTop:"2rem",borderTop:"1px solid rgba(247,242,234,0.1)"}}>
                 {[{n:"6",l:"Listings"},{n:"4.95",l:"Rating"},{n:"440+",l:"Guests"},{n:"5",l:"Areas"}].map(s=>(
                   <div key={s.l} style={{textAlign:"center",padding:"0 0.5rem"}}>
-                    <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.8rem",color:C.gold,fontWeight:500}}>{s.n}</div>
+                    <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.8rem",color:C.gold,fontWeight:500}}>{s.n}</div>
                     <div style={{fontSize:"0.6rem",letterSpacing:"0.18em",textTransform:"uppercase",color:"rgba(247,242,234,0.45)",marginTop:"0.2rem"}}>{s.l}</div>
                   </div>
                 ))}
@@ -2095,7 +2004,7 @@ function Hero({ listings, onNavigate }) {
               <div style={{background:"rgba(253,250,245,0.94)",backdropFilter:"blur(12px)",borderRadius:"10px",padding:"1rem 1.2rem",boxShadow:"0 8px 32px rgba(14,43,31,0.2)"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                   <div>
-                    <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1rem",color:"#0E2B1F",fontWeight:500}}>{listings[slide]?.name}</div>
+                    <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1rem",color:"#0E2B1F",fontWeight:500}}>{listings[slide]?.name}</div>
                     <div style={{fontSize:"0.72rem",color:C.muted,marginTop:"0.15rem"}}>{listings[slide]?.neighborhood} · from KES {fmt(listings[slide]?.pricePerNight)}/night</div>
                   </div>
                   <button onClick={()=>onNavigate("listings")} style={{background:"#0E2B1F",color:"#F7F2EA",border:"none",borderRadius:"4px",padding:"0.5rem 1rem",fontSize:"0.7rem",fontWeight:600,cursor:"pointer",letterSpacing:"0.1em",textTransform:"uppercase",transition:"background 0.2s",flexShrink:0,marginLeft:"1rem"}}
@@ -2126,7 +2035,7 @@ function MyBookingsPanel({ bookings, onClose }) {
     <div style={{position:"fixed",inset:0,background:"rgba(5,5,10,0.9)",zIndex:999,display:"flex",alignItems:"center",justifyContent:"center"}} onClick={onClose}>
       <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:"10px",padding:"2.5rem",textAlign:"center",maxWidth:"380px"}} onClick={e=>e.stopPropagation()}>
         <div style={{fontSize:"2rem",marginBottom:"1rem"}}>📋</div>
-        <div style={{fontFamily:"'Playfair Display',serif",color:"#0E2B1F",fontSize:"1.2rem",marginBottom:"0.5rem"}}>No bookings yet</div>
+        <div style={{fontFamily:"'Fraunces',Georgia,serif",color:"#0E2B1F",fontSize:"1.2rem",marginBottom:"0.5rem"}}>No bookings yet</div>
         <div style={{color:C.muted,fontSize:"0.85rem",marginBottom:"1.5rem"}}>Your confirmed bookings will appear here.</div>
         <button onClick={onClose} style={{background:C.gold,color:C.obsidian,border:"none",padding:"0.7rem 1.8rem",borderRadius:"4px",cursor:"pointer",fontWeight:600}}>Browse Listings</button>
       </div>
@@ -2136,7 +2045,7 @@ function MyBookingsPanel({ bookings, onClose }) {
     <div style={{position:"fixed",inset:0,background:"rgba(14,43,31,0.65)",zIndex:999,display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem"}} onClick={onClose}>
       <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"10px",width:"100%",maxWidth:"600px",maxHeight:"80vh",overflowY:"auto",animation:"slideUp 0.3s ease"}} onClick={e=>e.stopPropagation()}>
         <div style={{position:"sticky",top:0,background:"#fff",padding:"1.5rem 1.8rem",borderBottom:`1px solid ${C.border}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div style={{fontFamily:"'Playfair Display',serif",color:"#0E2B1F",fontSize:"1.3rem"}}>My Bookings</div>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",color:"#0E2B1F",fontSize:"1.3rem"}}>My Bookings</div>
           <button onClick={onClose} style={{background:"none",border:"none",color:C.muted,fontSize:"1.3rem",cursor:"pointer"}}>✕</button>
         </div>
         <div style={{padding:"1.2rem"}}>
@@ -2144,7 +2053,7 @@ function MyBookingsPanel({ bookings, onClose }) {
             <div key={i} style={{background:"#F7F2EA",border:`1px solid ${C.border}`,borderRadius:"7px",padding:"1.2rem",marginBottom:"0.8rem"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"0.7rem"}}>
                 <div>
-                  <div style={{fontFamily:"'Playfair Display',serif",color:"#0E2B1F",fontSize:"1rem"}}>{b.listing?.name}</div>
+                  <div style={{fontFamily:"'Fraunces',Georgia,serif",color:"#0E2B1F",fontSize:"1rem"}}>{b.listing?.name}</div>
                   <div style={{fontSize:"0.75rem",color:C.muted,marginTop:"0.2rem"}}>{fmtDate(b.checkIn)} – {fmtDate(b.checkOut)} · {b.nights} night{b.nights>1?"s":""}</div>
                 </div>
                 <div style={{background:C.successDim,border:"1px solid rgba(76,175,125,0.3)",borderRadius:"4px",padding:"0.2rem 0.6rem",fontSize:"0.65rem",color:C.success,fontWeight:600}}>Confirmed</div>
@@ -2172,7 +2081,7 @@ function AboutPage({ siteContent }) {
         <div style={{position:"absolute",inset:0,background:"rgba(14,43,31,0.6)"}}/>
         <div style={{position:"relative",zIndex:1,height:"100%",display:"flex",flexDirection:"column",justifyContent:"flex-end",padding:"3rem 4rem"}}>
           <div style={{fontSize:"0.68rem",letterSpacing:"0.35em",textTransform:"uppercase",color:C.gold,marginBottom:"0.8rem"}}>{sc.aboutHeroSubtitle}</div>
-          <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(2.5rem,5vw,4rem)",color:"#F7F2EA",fontWeight:400}}>
+          <h1 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"clamp(2.5rem,5vw,4rem)",color:"#F7F2EA",fontWeight:400}}>
             {sc.aboutHeroTitle.split("\n").map((line,i)=>(
               <span key={i}>{i>0&&<br/>}{line}</span>
             ))}
@@ -2186,7 +2095,7 @@ function AboutPage({ siteContent }) {
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(140px,1fr))",gap:"1rem",marginTop:"2rem"}}>
           {[{n:sc.statFounded,l:"Founded"},{n:sc.statGuests,l:"Guests hosted"},{n:sc.statRating,l:"Avg rating"}].map(s=>(
             <div key={s.l} style={{textAlign:"center",padding:"2rem",background:"#fff",border:`1px solid ${C.border}`,borderRadius:"6px",boxShadow:"0 2px 12px rgba(14,43,31,0.06)"}}>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"2.2rem",color:C.gold,marginBottom:"0.4rem"}}>{s.n}</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"2.2rem",color:C.gold,marginBottom:"0.4rem"}}>{s.n}</div>
               <div style={{fontSize:"0.72rem",letterSpacing:"0.2em",textTransform:"uppercase",color:C.muted}}>{s.l}</div>
             </div>
           ))}
@@ -2209,7 +2118,7 @@ function ContactPage({ siteContent }) {
     <div style={{minHeight:"100vh",paddingTop:"72px",background:C.obsidian}}>
       <div style={{maxWidth:"900px",margin:"0 auto",padding:"3rem 1.5rem",background:"#FDFAF5"}}>
         <div style={{fontSize:"0.68rem",letterSpacing:"0.35em",textTransform:"uppercase",color:C.gold,marginBottom:"0.8rem"}}>Get in Touch</div>
-        <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(2.5rem,5vw,4rem)",color:"#0E2B1F",fontWeight:400,marginBottom:"1rem"}}>Ready to <em style={{color:C.gold}}>book?</em></h1>
+        <h1 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"clamp(2.5rem,5vw,4rem)",color:"#0E2B1F",fontWeight:400,marginBottom:"1rem"}}>Ready to <em style={{color:C.gold}}>book?</em></h1>
         <p style={{fontSize:"0.95rem",color:C.muted,marginBottom:"3rem",lineHeight:1.8}}>Reach us on WhatsApp for the fastest response, or fill in the form below.</p>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(min(100%,260px),1fr))",gap:"1.2rem"}}>
           {items.map(c=>(
@@ -2226,7 +2135,7 @@ function ContactPage({ siteContent }) {
         {/* WhatsApp CTA */}
         <div style={{marginTop:"3rem",padding:"2rem",background:"linear-gradient(135deg,#0E2B1F,#1a3d2b)",borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:"1rem"}}>
           <div>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.4rem",color:"#F7F2EA",marginBottom:"0.3rem"}}>Chat with us directly</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.4rem",color:"#F7F2EA",marginBottom:"0.3rem"}}>Chat with us directly</div>
             <div style={{fontSize:"0.85rem",color:"rgba(247,242,234,0.6)"}}>Average response time: {sc.responseTime}</div>
           </div>
           <a href={`https://wa.me/${sc.whatsapp}?text=${encodeURIComponent(`Hi! I'd like to inquire about a ${BRAND.fullName} booking.`)}`}
@@ -2394,7 +2303,7 @@ function NewYearPopup({ holiday, onClose, onBook }) {
         ))}
         <div style={{position:"relative",zIndex:1,padding:"2.5rem 2rem 2rem",textAlign:"center"}}>
           <div style={{fontSize:"3.5rem",marginBottom:"0.2rem",filter:"drop-shadow(0 0 20px gold)"}}>🎆</div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"2.2rem",color:t.accent,fontWeight:600,lineHeight:1.1,marginBottom:"0.4rem",textShadow:`0 0 30px ${t.accent}88`}}>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"2.2rem",color:t.accent,fontWeight:600,lineHeight:1.1,marginBottom:"0.4rem",textShadow:`0 0 30px ${t.accent}88`}}>
             Happy New Year!
           </div>
           <div style={{fontSize:"0.7rem",letterSpacing:"0.4em",textTransform:"uppercase",color:t.accent2,marginBottom:"1.2rem"}}>
@@ -2406,7 +2315,7 @@ function NewYearPopup({ holiday, onClose, onBook }) {
           }
           <div style={{background:`linear-gradient(135deg,${t.accent}22,${t.accent2}11)`,border:`1px solid ${t.accent}55`,borderRadius:"10px",padding:"1rem 1.5rem",marginBottom:"1.5rem",animation:"glowPulse 2s ease infinite"}}>
             <div style={{fontSize:"0.6rem",letterSpacing:"0.3em",textTransform:"uppercase",color:t.accent2,marginBottom:"0.3rem"}}>New Year Offer</div>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"2.5rem",color:t.accent,fontWeight:700}}>{holiday.discount}% OFF</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"2.5rem",color:t.accent,fontWeight:700}}>{holiday.discount}% OFF</div>
             <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.5)",marginTop:"0.2rem"}}>Use code: <strong style={{color:t.accent2,letterSpacing:"0.1em"}}>NEWYEAR{new Date().getFullYear()}</strong></div>
           </div>
           <button onClick={onBook} style={{width:"100%",padding:"1rem",background:`linear-gradient(135deg,${t.accent},${t.accent2})`,color:"#000",border:"none",borderRadius:"8px",fontSize:"0.85rem",fontWeight:700,letterSpacing:"0.15em",textTransform:"uppercase",cursor:"pointer",marginBottom:"0.8rem"}}>
@@ -2462,7 +2371,7 @@ function ValentinesPopup({ holiday, onClose, onBook }) {
         }}>Limited</div>
         <div style={{position:"relative",zIndex:1,padding:"2.5rem 2rem 2rem",textAlign:"center"}}>
           <div style={{fontSize:"3rem",marginBottom:"0.3rem",animation:"heartBeat 1.5s ease infinite"}}>💖</div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"2rem",color:t.accent,fontWeight:600,marginBottom:"0.3rem",textShadow:`0 0 25px ${t.accent}77`}}>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"2rem",color:t.accent,fontWeight:600,marginBottom:"0.3rem",textShadow:`0 0 25px ${t.accent}77`}}>
             Love is in the Air
           </div>
           <div style={{fontSize:"0.7rem",letterSpacing:"0.3em",textTransform:"uppercase",color:t.accent2,marginBottom:"1.2rem"}}>
@@ -2478,7 +2387,7 @@ function ValentinesPopup({ holiday, onClose, onBook }) {
             padding:"1rem 1.5rem",marginBottom:"1.4rem",
           }}>
             <div style={{textAlign:"center"}}>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"2.8rem",color:t.accent,lineHeight:1}}>{holiday.discount}%</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"2.8rem",color:t.accent,lineHeight:1}}>{holiday.discount}%</div>
               <div style={{fontSize:"0.65rem",color:t.accent2,letterSpacing:"0.2em",textTransform:"uppercase"}}>Discount</div>
             </div>
             <div style={{width:"1px",height:"50px",background:`${t.accent}33`}}/>
@@ -2532,7 +2441,7 @@ function KenyaDayPopup({ holiday, onClose, onBook }) {
           <div style={{fontSize:"4rem",marginBottom:"0.3rem",filter:"drop-shadow(0 0 20px rgba(204,0,0,0.6))",animation:isMashujaa?"swing 2s ease infinite":"none"}}>
             {isMashujaa?"🛡️":"🇰🇪"}
           </div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"2rem",color:"#FFFFFF",fontWeight:600,marginBottom:"0.2rem",letterSpacing:"0.02em"}}>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"2rem",color:"#FFFFFF",fontWeight:600,marginBottom:"0.2rem",letterSpacing:"0.02em"}}>
             {holiday.name}
           </div>
           <div style={{fontSize:"0.68rem",letterSpacing:"0.4em",textTransform:"uppercase",color:"#006600",marginBottom:"0.3rem"}}>
@@ -2553,7 +2462,7 @@ function KenyaDayPopup({ holiday, onClose, onBook }) {
           {/* Discount block */}
           <div style={{background:"rgba(0,102,0,0.2)",border:"1px solid rgba(0,102,0,0.5)",borderRadius:"10px",padding:"1.2rem",marginBottom:"1.4rem",position:"relative",overflow:"hidden"}}>
             <div style={{position:"absolute",top:0,left:0,bottom:0,width:"4px",background:"linear-gradient(180deg,#006600,#CC0000,#000)"}}/>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"3rem",color:"#FFD700",fontWeight:700,lineHeight:1}}>{holiday.discount}%</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"3rem",color:"#FFD700",fontWeight:700,lineHeight:1}}>{holiday.discount}%</div>
             <div style={{fontSize:"0.65rem",letterSpacing:"0.25em",color:"rgba(255,255,255,0.6)",textTransform:"uppercase"}}>Holiday Discount</div>
           </div>
           <div style={{display:"flex",gap:"0.7rem"}}>
@@ -2604,7 +2513,7 @@ function EidPopup({ holiday, onClose, onBook }) {
         <div style={{position:"relative",zIndex:1,padding:"2.5rem 2rem 2rem",textAlign:"center"}}>
           <div style={{fontSize:"3.5rem",marginBottom:"0.2rem"}}>🌙</div>
           <div style={{fontSize:"0.65rem",letterSpacing:"0.5em",textTransform:"uppercase",color:t.accent2,marginBottom:"0.4rem"}}>Eid Mubarak</div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"2.2rem",color:t.accent,fontWeight:600,marginBottom:"0.3rem"}}>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"2.2rem",color:t.accent,fontWeight:600,marginBottom:"0.3rem"}}>
             Blessed Holiday Offer
           </div>
           <div style={{display:"flex",justifyContent:"center",gap:"0.5rem",marginBottom:"1.2rem"}}>
@@ -2624,7 +2533,7 @@ function EidPopup({ holiday, onClose, onBook }) {
             border:`1px solid ${t.accent}44`,
           }}>
             <div style={{position:"absolute",top:"-1px",left:"50%",transform:"translateX(-50%)",padding:"0.15rem 1rem",background:`linear-gradient(135deg,${t.accent},${t.accent2})`,borderRadius:"0 0 8px 8px",fontSize:"0.6rem",fontWeight:700,color:"#000",letterSpacing:"0.15em",textTransform:"uppercase"}}>Eid Special</div>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"3rem",color:t.accent,fontWeight:700,lineHeight:1,marginTop:"0.5rem"}}>{holiday.discount}%</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"3rem",color:t.accent,fontWeight:700,lineHeight:1,marginTop:"0.5rem"}}>{holiday.discount}%</div>
             <div style={{fontSize:"0.65rem",color:"rgba(255,255,255,0.5)",letterSpacing:"0.2em",textTransform:"uppercase"}}>Off your stay</div>
           </div>
           <button onClick={onBook} style={{width:"100%",padding:"1rem",background:`linear-gradient(135deg,${t.accent},#8b7022)`,color:"#000",border:"none",borderRadius:"10px",fontSize:"0.85rem",fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",cursor:"pointer",marginBottom:"0.7rem"}}>
@@ -2660,7 +2569,7 @@ function ChristmasPopup({ holiday, onClose, onBook }) {
         </div>
         <div style={{position:"relative",zIndex:1,padding:"2.5rem 2rem 2rem",textAlign:"center"}}>
           <div style={{fontSize:"3.5rem",marginBottom:"0.2rem",filter:"drop-shadow(0 0 15px rgba(255,215,0,0.6))"}}>🎄</div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"2.3rem",color:"#FFFFFF",fontWeight:600,marginBottom:"0.2rem"}}>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"2.3rem",color:"#FFFFFF",fontWeight:600,marginBottom:"0.2rem"}}>
             Season&apos;s Greetings
           </div>
           <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem",marginBottom:"1.2rem"}}>
@@ -2684,7 +2593,7 @@ function ChristmasPopup({ holiday, onClose, onBook }) {
               boxShadow:"0 0 0 3px #FFD700, 0 0 30px rgba(204,0,0,0.5)",
               border:"4px solid #FFD700",
             }}>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"2.2rem",color:"#fff",lineHeight:1,fontWeight:700}}>{holiday.discount}%</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"2.2rem",color:"#fff",lineHeight:1,fontWeight:700}}>{holiday.discount}%</div>
               <div style={{fontSize:"0.55rem",color:"rgba(255,255,255,0.7)",letterSpacing:"0.2em",textTransform:"uppercase"}}>off</div>
             </div>
             <div style={{fontSize:"1.5rem",animation:"swing 1.5s ease 0.5s infinite"}}>🎄</div>
@@ -2719,7 +2628,7 @@ function GenericHolidayPopup({ holiday, onClose, onBook }) {
         <div style={{position:"absolute",top:0,left:0,right:0,height:"4px",background:`linear-gradient(90deg,${t.accent},${t.accent2},${t.accent})`}}/>
         <div style={{position:"relative",zIndex:1,padding:"2.5rem 2rem 2rem",textAlign:"center"}}>
           <div style={{fontSize:"3.5rem",marginBottom:"0.3rem",filter:`drop-shadow(0 0 20px ${t.accent}88)`}}>{holiday.emoji}</div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"2rem",color:t.accent,fontWeight:600,marginBottom:"0.3rem"}}>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"2rem",color:t.accent,fontWeight:600,marginBottom:"0.3rem"}}>
             {holiday.name}
           </div>
           <div style={{fontSize:"0.65rem",letterSpacing:"0.35em",textTransform:"uppercase",color:t.accent2,marginBottom:"1.2rem"}}>
@@ -2735,7 +2644,7 @@ function GenericHolidayPopup({ holiday, onClose, onBook }) {
             background:`${t.accent}18`,border:`1px solid ${t.accent}44`,borderRadius:"12px",
             padding:"1.2rem 1.5rem",marginBottom:"1.4rem",
           }}>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"3rem",color:t.accent,fontWeight:700,lineHeight:1}}>{holiday.discount}%</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"3rem",color:t.accent,fontWeight:700,lineHeight:1}}>{holiday.discount}%</div>
             <div style={{fontSize:"0.65rem",color:"rgba(255,255,255,0.5)",letterSpacing:"0.2em",textTransform:"uppercase",marginTop:"0.2rem"}}>Off your booking</div>
           </div>
           <button onClick={onBook} style={{width:"100%",padding:"1rem",background:`linear-gradient(135deg,${t.accent},${t.accent2})`,color:"#000",border:"none",borderRadius:"8px",fontSize:"0.85rem",fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",cursor:"pointer",marginBottom:"0.7rem"}}>
@@ -2823,7 +2732,7 @@ function PromosManager({ promoConfig, onSave }) {
     <div>
       <div style={{marginBottom:"2rem"}}>
         <div style={{fontSize:"0.65rem",letterSpacing:"0.3em",textTransform:"uppercase",color:C.gold,marginBottom:"0.4rem"}}>Promotions</div>
-        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400}}>Holiday & Promo Manager</h2>
+        <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400}}>Holiday & Promo Manager</h2>
         <p style={{fontSize:"0.85rem",color:C.muted,marginTop:"0.5rem",lineHeight:1.6}}>Configure discounts and messages for Kenya public holidays. Popups auto-appear on your site in the days leading up to each holiday.</p>
       </div>
 
@@ -2876,7 +2785,7 @@ function PromosManager({ promoConfig, onSave }) {
                   <div>
                     <label style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.4rem"}}>
                       <span style={{fontSize:"0.7rem",letterSpacing:"0.15em",textTransform:"uppercase",color:C.muted}}>Discount %</span>
-                      <span style={{fontFamily:"'Playfair Display',serif",fontSize:"1.1rem",color:C.gold,fontWeight:600}}>{cfg.discount}%</span>
+                      <span style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.1rem",color:C.gold,fontWeight:600}}>{cfg.discount}%</span>
                     </label>
                     <input type="range" min="5" max="50" value={cfg.discount||h.defaultDiscount}
                       onChange={e=>update(h.id,"discount",Number(e.target.value))}
@@ -3041,7 +2950,7 @@ function UpcomingHolidayCard({ holiday, index, onBook, isHero }) {
               <span style={{fontSize:"0.6rem",fontWeight:700,letterSpacing:"0.2em",textTransform:"uppercase",color:urg.color}}>{urg.label} · {daysLabel}</span>
             </div>
 
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(1.6rem,3vw,2.4rem)",color:"#fff",fontWeight:600,lineHeight:1.1,marginBottom:"0.6rem"}}>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"clamp(1.6rem,3vw,2.4rem)",color:"#fff",fontWeight:600,lineHeight:1.1,marginBottom:"0.6rem"}}>
               {holiday.emoji} {holiday.name}
             </div>
             <div style={{fontSize:"0.85rem",color:"rgba(255,255,255,0.6)",marginBottom:"1.2rem",lineHeight:1.6}}>
@@ -3067,7 +2976,7 @@ function UpcomingHolidayCard({ holiday, index, onBook, isHero }) {
           {/* Big discount number */}
           <div style={{textAlign:"center",flexShrink:0}}>
             <div style={{
-              fontFamily:"'Playfair Display',serif",
+              fontFamily:"'Fraunces',Georgia,serif",
               fontSize:"clamp(4rem,8vw,6rem)",
               color:t.accent,fontWeight:700,lineHeight:0.9,
               textShadow:`0 0 60px ${t.accent}66`,
@@ -3110,7 +3019,7 @@ function UpcomingHolidayCard({ holiday, index, onBook, isHero }) {
         <div style={{position:"absolute",right:"-10px",bottom:"-10px",fontSize:"4rem",opacity:0.12,transform:"rotate(-10deg)",userSelect:"none"}}>{holiday.emoji}</div>
         <div style={{fontSize:"2.2rem",filter:`drop-shadow(0 0 12px ${t.accent}88)`,flexShrink:0}}>{holiday.emoji}</div>
         <div style={{position:"relative",zIndex:1}}>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.1rem",color:"#fff",fontWeight:500,lineHeight:1.2}}>{holiday.name}</div>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.1rem",color:"#fff",fontWeight:500,lineHeight:1.2}}>{holiday.name}</div>
           <div style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.5)",marginTop:"0.2rem"}}>
             {holiday.hDate.toLocaleDateString("en-KE",{day:"numeric",month:"long"})}
           </div>
@@ -3218,7 +3127,7 @@ function UpcomingPromosSection({ promoConfig, onNavigate, listings, onSelectWith
             <div style={{fontSize:"0.65rem",letterSpacing:"0.4em",textTransform:"uppercase",color:C.gold}}>Holiday Deals</div>
             <div style={{width:"32px",height:"1px",background:C.gold}}/>
           </div>
-          <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(1.9rem,4vw,3rem)",color:"#0E2B1F",fontWeight:400,marginBottom:"0.7rem"}}>
+          <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"clamp(1.9rem,4vw,3rem)",color:"#0E2B1F",fontWeight:400,marginBottom:"0.7rem"}}>
             Upcoming <em style={{color:C.gold,fontStyle:"italic"}}>Offers</em> & Holidays
           </h2>
           <p style={{fontSize:"0.9rem",color:C.muted,maxWidth:"480px",margin:"0 auto",lineHeight:1.8}}>
@@ -3346,7 +3255,7 @@ function SiteContentManager({ siteContent, onSave }) {
     <div>
       <div style={{marginBottom:"2rem"}}>
         <div style={{fontSize:"0.65rem",letterSpacing:"0.3em",textTransform:"uppercase",color:C.gold,marginBottom:"0.4rem"}}>Site Content</div>
-        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400}}>About & Contact</h2>
+        <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400}}>About & Contact</h2>
         <p style={{fontSize:"0.85rem",color:C.muted,marginTop:"0.4rem"}}>Changes are saved to the database and appear live on the site immediately.</p>
       </div>
 
@@ -3368,7 +3277,7 @@ function SiteContentManager({ siteContent, onSave }) {
           <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"10px",padding:"1.8rem",boxShadow:"0 2px 8px rgba(14,43,31,0.05)"}}>
             <div style={{display:"flex",alignItems:"center",gap:"0.6rem",marginBottom:"1.2rem"}}>
               <span style={{fontSize:"1.4rem"}}>📱</span>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.05rem",color:"#0E2B1F",fontWeight:500}}>WhatsApp</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.05rem",color:"#0E2B1F",fontWeight:500}}>WhatsApp</div>
             </div>
             <F label="Number (digits only, with country code)" hint="e.g. 254745802200 — used for wa.me links">
               <input value={draft.whatsapp||""} onChange={e=>set("whatsapp",e.target.value.replace(/\D/g,""))}
@@ -3386,7 +3295,7 @@ function SiteContentManager({ siteContent, onSave }) {
           <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"10px",padding:"1.8rem",boxShadow:"0 2px 8px rgba(14,43,31,0.05)"}}>
             <div style={{display:"flex",alignItems:"center",gap:"0.6rem",marginBottom:"1.2rem"}}>
               <span style={{fontSize:"1.4rem"}}>✉️</span>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.05rem",color:"#0E2B1F",fontWeight:500}}>Email & Phone</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.05rem",color:"#0E2B1F",fontWeight:500}}>Email & Phone</div>
             </div>
             <F label="Email address">
               <input value={draft.email||""} onChange={e=>set("email",e.target.value)}
@@ -3404,7 +3313,7 @@ function SiteContentManager({ siteContent, onSave }) {
           <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"10px",padding:"1.8rem",boxShadow:"0 2px 8px rgba(14,43,31,0.05)"}}>
             <div style={{display:"flex",alignItems:"center",gap:"0.6rem",marginBottom:"1.2rem"}}>
               <span style={{fontSize:"1.4rem"}}>◎</span>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.05rem",color:"#0E2B1F",fontWeight:500}}>Location & Response</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.05rem",color:"#0E2B1F",fontWeight:500}}>Location & Response</div>
             </div>
             <F label="Location (shown on contact page)">
               <input value={draft.location||""} onChange={e=>set("location",e.target.value)}
@@ -3446,7 +3355,7 @@ function SiteContentManager({ siteContent, onSave }) {
 
           {/* Hero */}
           <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"10px",padding:"1.8rem",boxShadow:"0 2px 8px rgba(14,43,31,0.05)"}}>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.05rem",color:"#0E2B1F",marginBottom:"1.2rem",fontWeight:500}}>Hero Section</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.05rem",color:"#0E2B1F",marginBottom:"1.2rem",fontWeight:500}}>Hero Section</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem"}}>
               <F label="Subtitle / eyebrow text">
                 <input value={draft.aboutHeroSubtitle||""} onChange={e=>set("aboutHeroSubtitle",e.target.value)}
@@ -3476,7 +3385,7 @@ function SiteContentManager({ siteContent, onSave }) {
 
           {/* Stats */}
           <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"10px",padding:"1.8rem",boxShadow:"0 2px 8px rgba(14,43,31,0.05)"}}>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.05rem",color:"#0E2B1F",marginBottom:"1.2rem",fontWeight:500}}>Statistics</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.05rem",color:"#0E2B1F",marginBottom:"1.2rem",fontWeight:500}}>Statistics</div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"1rem"}}>
               {[{k:"statFounded",label:"Founded (year)"},{k:"statGuests",label:"Guests hosted"},{k:"statRating",label:"Avg rating"}].map(s=>(
                 <F key={s.k} label={s.label}>
@@ -3490,7 +3399,7 @@ function SiteContentManager({ siteContent, onSave }) {
           {/* Paragraphs */}
           <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"10px",padding:"1.8rem",boxShadow:"0 2px 8px rgba(14,43,31,0.05)"}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1.2rem"}}>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.05rem",color:"#0E2B1F",fontWeight:500}}>About Text</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.05rem",color:"#0E2B1F",fontWeight:500}}>About Text</div>
               <button onClick={addParagraph}
                 style={{padding:"0.4rem 0.9rem",background:C.goldDim,border:`1px solid ${C.border}`,borderRadius:"4px",fontSize:"0.72rem",color:C.gold,cursor:"pointer",fontWeight:600,letterSpacing:"0.08em",transition:"all 0.15s"}}
                 onMouseEnter={e=>e.currentTarget.style.borderColor=C.gold}
@@ -3520,7 +3429,7 @@ function SiteContentManager({ siteContent, onSave }) {
             <img src={draft.aboutHeroImage} alt="" style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}} onError={e=>e.target.style.display="none"}/>
             <div style={{position:"absolute",inset:0,background:"rgba(14,43,31,0.6)",display:"flex",flexDirection:"column",justifyContent:"flex-end",padding:"1.5rem 2rem"}}>
               <div style={{fontSize:"0.62rem",letterSpacing:"0.35em",textTransform:"uppercase",color:C.gold,marginBottom:"0.5rem"}}>{draft.aboutHeroSubtitle}</div>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.6rem",color:"#F7F2EA",fontWeight:400}}>{draft.aboutHeroTitle}</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.6rem",color:"#F7F2EA",fontWeight:400}}>{draft.aboutHeroTitle}</div>
             </div>
           </div>
         </div>
@@ -3821,7 +3730,7 @@ What can I sort out for you?`;
                 boxShadow:`0 0 0 2px rgba(197,151,58,0.3), 0 4px 12px rgba(197,151,58,0.3)`,
               }}>✨</div>
               <div style={{flex:1}}>
-                <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1rem",color:"#F7F2EA",fontWeight:500,letterSpacing:"0.01em"}}>{BRAND.conciergeName}</div>
+                <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1rem",color:"#F7F2EA",fontWeight:500,letterSpacing:"0.01em"}}>{BRAND.conciergeName}</div>
                 <div style={{fontSize:"0.65rem",color:"rgba(247,242,234,0.55)",letterSpacing:"0.15em",textTransform:"uppercase"}}>{BRAND.name} Concierge · {BRAND.city}</div>
               </div>
               <div style={{display:"flex",alignItems:"center",gap:"0.4rem"}}>
@@ -4036,7 +3945,7 @@ function MyBookingPage({ bookings, listings, onBookingMade }) {
         <div style={{position:"absolute",inset:0,backgroundImage:"url(https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1400&q=40)",backgroundSize:"cover",backgroundPosition:"center",opacity:0.07,pointerEvents:"none"}}/>
         <div style={{maxWidth:"640px",margin:"0 auto",textAlign:"center",position:"relative"}}>
           <div style={{fontSize:"0.65rem",letterSpacing:"0.38em",textTransform:"uppercase",color:C.gold,marginBottom:"0.9rem"}}>Booking Lookup</div>
-          <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(2rem,5vw,3.2rem)",color:"#F7F2EA",fontWeight:400,marginBottom:"0.8rem",lineHeight:1.2}}>
+          <h1 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"clamp(2rem,5vw,3.2rem)",color:"#F7F2EA",fontWeight:400,marginBottom:"0.8rem",lineHeight:1.2}}>
             Find Your <em style={{color:C.gold,fontStyle:"italic"}}>Reservation</em>
           </h1>
           <p style={{fontSize:"0.92rem",color:"rgba(247,242,234,0.65)",lineHeight:1.8,maxWidth:"420px",margin:"0 auto 2.2rem"}}>
@@ -4087,7 +3996,7 @@ function MyBookingPage({ bookings, listings, onBookingMade }) {
         {!submitted&&(
           <div style={{textAlign:"center",paddingTop:"2rem",color:C.muted}}>
             <div style={{fontSize:"3rem",marginBottom:"1rem",opacity:0.35}}>🔍</div>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.2rem",color:C.sage,marginBottom:"0.4rem"}}>Your reservations, at a glance</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.2rem",color:C.sage,marginBottom:"0.4rem"}}>Your reservations, at a glance</div>
             <div style={{fontSize:"0.85rem",lineHeight:1.8,color:C.muted}}>Enter your phone number above to see upcoming reservations and any outstanding balances.</div>
           </div>
         )}
@@ -4096,7 +4005,7 @@ function MyBookingPage({ bookings, listings, onBookingMade }) {
         {submitted&&myBookings.length===0&&(
           <div style={{textAlign:"center",paddingTop:"1.5rem"}}>
             <div style={{fontSize:"3rem",marginBottom:"1rem",opacity:0.4}}>📭</div>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.3rem",color:C.sage,marginBottom:"0.6rem"}}>No reservations found</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.3rem",color:C.sage,marginBottom:"0.6rem"}}>No reservations found</div>
             <div style={{fontSize:"0.88rem",color:C.muted,lineHeight:1.8,maxWidth:"380px",margin:"0 auto"}}>
               We couldn't find upcoming bookings for that number. Check that it matches the number you used to pay via M-Pesa, or contact us on WhatsApp.
             </div>
@@ -4138,7 +4047,7 @@ function MyBookingPage({ bookings, listings, onBookingMade }) {
                     {/* Header */}
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:"0.6rem",marginBottom:"1rem"}}>
                       <div>
-                        <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"0.2rem"}}>{b.listing?.name}</div>
+                        <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"0.2rem"}}>{b.listing?.name}</div>
                         <div style={{fontSize:"0.75rem",color:C.muted}}>{b.listing?.neighborhood}, {BRAND.city}</div>
                       </div>
                       <span style={{fontSize:"0.62rem",fontWeight:700,padding:"0.2rem 0.6rem",background:"rgba(197,151,58,0.12)",color:C.gold,border:`1px solid rgba(197,151,58,0.35)`,borderRadius:"3px",letterSpacing:"0.1em",textTransform:"uppercase",flexShrink:0}}>Deposit Paid</span>
@@ -4227,7 +4136,7 @@ function MyBookingPage({ bookings, listings, onBookingMade }) {
                     <div style={{padding:"1.4rem 1.6rem"}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"1rem",flexWrap:"wrap",gap:"0.6rem"}}>
                         <div>
-                          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"0.2rem"}}>{b.listing?.name}</div>
+                          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"0.2rem"}}>{b.listing?.name}</div>
                           <div style={{fontSize:"0.75rem",color:C.muted}}>{b.listing?.neighborhood}, {BRAND.city}</div>
                         </div>
                         <span style={{fontSize:"0.65rem",fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",padding:"0.22rem 0.65rem",background:STATUS_BG[st],color:STATUS_COLOR[st],border:`1px solid ${STATUS_BORDER[st]}`,borderRadius:"3px"}}>
@@ -4369,7 +4278,7 @@ function BalancePaymentModal({ booking, listing, onClose, onSuccess }) {
           <div style={{fontSize:"0.65rem",letterSpacing:"0.25em",textTransform:"uppercase",color:C.gold,marginBottom:"0.3rem"}}>
             {step==="success"?"Balance Cleared":"Pay Remaining Balance"}
           </div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.3rem",color:"#0E2B1F",marginBottom:"0.2rem"}}>{booking.listing?.name}</div>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.3rem",color:"#0E2B1F",marginBottom:"0.2rem"}}>{booking.listing?.name}</div>
           <div style={{fontSize:"0.8rem",color:C.muted}}>{fmtDate(booking.checkIn)} → {fmtDate(booking.checkOut)}</div>
         </div>
 
@@ -4408,7 +4317,7 @@ function BalancePaymentModal({ booking, listing, onClose, onSuccess }) {
         {step==="sending"&&(
           <div style={{textAlign:"center",padding:"2rem 0"}}>
             <div style={{width:"50px",height:"50px",border:`3px solid ${C.goldDim}`,borderTop:`3px solid ${C.gold}`,borderRadius:"50%",animation:"spin 0.9s linear infinite",margin:"0 auto 1.5rem"}}/>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.1rem",color:"#0E2B1F",marginBottom:"0.4rem"}}>Sending STK push…</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.1rem",color:"#0E2B1F",marginBottom:"0.4rem"}}>Sending STK push…</div>
             <div style={{fontSize:"0.82rem",color:C.muted}}>Connecting to M-Pesa for +{normalisePhone(phone)}</div>
           </div>
         )}
@@ -4417,7 +4326,7 @@ function BalancePaymentModal({ booking, listing, onClose, onSuccess }) {
         {step==="waitPin"&&(
           <div style={{animation:"fadeIn 0.3s ease",textAlign:"center"}}>
             <div style={{fontSize:"3rem",marginBottom:"0.7rem",animation:"heartBeat 1.8s ease infinite"}}>📱</div>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.2rem",color:"#0E2B1F",marginBottom:"0.5rem"}}>Check Your Phone</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.2rem",color:"#0E2B1F",marginBottom:"0.5rem"}}>Check Your Phone</div>
             <div style={{fontSize:"0.85rem",color:C.muted,lineHeight:1.7,marginBottom:"1.2rem"}}>
               M-Pesa prompt sent to<br/><strong style={{color:C.gold}}>+{normalisePhone(phone)}</strong><br/>Enter your PIN to pay <strong style={{color:C.gold}}>KES {fmt(amount)}</strong>
             </div>
@@ -4433,7 +4342,7 @@ function BalancePaymentModal({ booking, listing, onClose, onSuccess }) {
         {step==="polling"&&(
           <div style={{textAlign:"center",padding:"2rem 0"}}>
             <div style={{width:"50px",height:"50px",border:`3px solid ${C.goldDim}`,borderTop:`3px solid ${C.gold}`,borderRadius:"50%",animation:"spin 0.9s linear infinite",margin:"0 auto 1.5rem"}}/>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.1rem",color:"#0E2B1F",marginBottom:"0.4rem"}}>Verifying Payment…</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.1rem",color:"#0E2B1F",marginBottom:"0.4rem"}}>Verifying Payment…</div>
             <div style={{fontSize:"0.8rem",color:C.muted}}>{statusMsg}</div>
           </div>
         )}
@@ -4442,7 +4351,7 @@ function BalancePaymentModal({ booking, listing, onClose, onSuccess }) {
         {step==="success"&&(
           <div style={{animation:"fadeIn 0.4s ease",textAlign:"center"}}>
             <div style={{width:"60px",height:"60px",background:C.successDim,border:`2px solid ${C.success}`,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.8rem",margin:"0 auto 1rem"}}>✓</div>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.4rem",color:"#0E2B1F",marginBottom:"0.4rem"}}>Balance Cleared! 🎉</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.4rem",color:"#0E2B1F",marginBottom:"0.4rem"}}>Balance Cleared! 🎉</div>
             <div style={{fontSize:"0.85rem",color:C.muted,marginBottom:"1.5rem",lineHeight:1.7}}>
               Your full balance of <strong style={{color:C.success}}>KES {fmt(amount)}</strong> has been received.<br/>Your booking at <strong>{booking.listing?.name}</strong> is fully confirmed.
             </div>
@@ -4471,7 +4380,7 @@ function BalancePaymentModal({ booking, listing, onClose, onSuccess }) {
         {step==="failed"&&(
           <div style={{textAlign:"center",animation:"fadeIn 0.3s ease"}}>
             <div style={{fontSize:"2.5rem",marginBottom:"0.8rem"}}>⚠️</div>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.2rem",color:"#0E2B1F",marginBottom:"0.5rem"}}>Payment Unsuccessful</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.2rem",color:"#0E2B1F",marginBottom:"0.5rem"}}>Payment Unsuccessful</div>
             <div style={{fontSize:"0.83rem",color:C.muted,lineHeight:1.7,marginBottom:"1rem"}}>{err}</div>
             <div style={{display:"flex",gap:"0.8rem"}}>
               <button onClick={()=>{setStep("confirm");setErr("");}} style={{flex:1,padding:"0.9rem",background:C.gold,color:C.obsidian,border:"none",borderRadius:"6px",fontSize:"0.8rem",fontWeight:600,cursor:"pointer"}}>Try Again</button>
@@ -4581,7 +4490,7 @@ function ReferAndEarnSection({ onOpenDashboard }) {
 
         {/* Hero headline */}
         <div style={{textAlign:"center",marginBottom:"1rem"}}>
-          <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(2.4rem,5vw,3.8rem)",color:"#F7F2EA",fontWeight:400,lineHeight:1.1,marginBottom:"0.8rem"}}>
+          <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"clamp(2.4rem,5vw,3.8rem)",color:"#F7F2EA",fontWeight:400,lineHeight:1.1,marginBottom:"0.8rem"}}>
             Share the vibe,<br/><em style={{color:C.gold,fontStyle:"italic"}}>bank the commission.</em>
           </h2>
           <p style={{fontSize:"1rem",color:"rgba(247,242,234,0.6)",maxWidth:"540px",margin:"0 auto",lineHeight:1.8}}>
@@ -4593,7 +4502,7 @@ function ReferAndEarnSection({ onOpenDashboard }) {
         <div style={{display:"flex",justifyContent:"center",gap:"0",marginBottom:"3.5rem",flexWrap:"wrap"}}>
           {[{v:"Free",l:"to join"},{v:"24hrs",l:"payout time"},{v:"Zero",l:"limits on earnings"},{v:"100%",l:"tracked automatically"}].map((s,i)=>(
             <div key={i} style={{padding:"1.2rem 2rem",borderRight:i<3?"1px solid rgba(197,151,58,0.15)":undefined,textAlign:"center",minWidth:"140px"}}>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.8rem",color:C.gold,fontWeight:400}}>{s.v}</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.8rem",color:C.gold,fontWeight:400}}>{s.v}</div>
               <div style={{fontSize:"0.65rem",letterSpacing:"0.15em",textTransform:"uppercase",color:"rgba(247,242,234,0.4)",marginTop:"0.2rem"}}>{s.l}</div>
             </div>
           ))}
@@ -4639,7 +4548,7 @@ function ReferAndEarnSection({ onOpenDashboard }) {
               <>
                 <div style={{textAlign:"center",marginBottom:"1.8rem"}}>
                   <div style={{width:"64px",height:"64px",borderRadius:"50%",background:"linear-gradient(135deg,rgba(197,151,58,0.2),rgba(197,151,58,0.05))",border:"1px solid rgba(197,151,58,0.3)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.8rem",margin:"0 auto 1rem",boxShadow:"0 0 30px rgba(197,151,58,0.15)"}}>💰</div>
-                  <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.4rem",color:"#F7F2EA",marginBottom:"0.4rem"}}>Start Earning Today</div>
+                  <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.4rem",color:"#F7F2EA",marginBottom:"0.4rem"}}>Start Earning Today</div>
                   <div style={{fontSize:"0.78rem",color:"rgba(247,242,234,0.45)",lineHeight:1.6}}>Free to join. Your own link in 30 seconds.</div>
                 </div>
                 <button onClick={()=>setStep(1)}
@@ -4687,7 +4596,7 @@ function ReferAndEarnSection({ onOpenDashboard }) {
                 {/* Success celebration */}
                 <div style={{textAlign:"center",marginBottom:"1.5rem"}}>
                   <div style={{fontSize:"3rem",marginBottom:"0.5rem",animation:"bounceIn 0.6s ease"}}>🎉</div>
-                  <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.3rem",color:"#F7F2EA",marginBottom:"0.3rem"}}>You're in!</div>
+                  <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.3rem",color:"#F7F2EA",marginBottom:"0.3rem"}}>You're in!</div>
                   <div style={{fontSize:"0.78rem",color:"rgba(247,242,234,0.5)"}}>Share this link. Earn every time someone books.</div>
                 </div>
                 {/* Link */}
@@ -4772,7 +4681,7 @@ function ReferralDashboard({ onClose, commissionSettings }) {
           <div style={{position:"absolute",inset:0,backgroundImage:"radial-gradient(circle at 2px 2px,rgba(197,151,58,0.06) 1px,transparent 0)",backgroundSize:"24px 24px",pointerEvents:"none"}}/>
           <button onClick={onClose} style={{position:"absolute",top:"1rem",right:"1rem",background:"none",border:"none",color:"rgba(247,242,234,0.5)",fontSize:"1.3rem",cursor:"pointer"}}>✕</button>
           <div style={{fontSize:"0.65rem",letterSpacing:"0.3em",textTransform:"uppercase",color:C.gold,marginBottom:"0.5rem"}}>Referral Programme</div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.6rem",color:"#F7F2EA",fontWeight:400}}>My Earnings</div>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.6rem",color:"#F7F2EA",fontWeight:400}}>My Earnings</div>
           <div style={{fontSize:"0.78rem",color:"rgba(247,242,234,0.55)",marginTop:"0.3rem"}}>
             {cs.type==="percentage" ? `You earn ${cs.value}% on every confirmed booking` : `You earn KES ${fmt(cs.value)} per confirmed booking`}
           </div>
@@ -4822,7 +4731,7 @@ function ReferralDashboard({ onClose, commissionSettings }) {
                   {label:"Paid Out",       val:`KES ${fmt(referrer.paidAmount)}`,    color:C.muted,  bg:"#F7F2EA",               border:C.border},
                 ].map(s=>(
                   <div key={s.label} style={{padding:"1rem 0.8rem",background:s.bg,border:`1px solid ${s.border}`,borderRadius:"8px",textAlign:"center"}}>
-                    <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.2rem",color:s.color,fontWeight:600,lineHeight:1}}>{s.val}</div>
+                    <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.2rem",color:s.color,fontWeight:600,lineHeight:1}}>{s.val}</div>
                     <div style={{fontSize:"0.6rem",letterSpacing:"0.12em",textTransform:"uppercase",color:C.muted,marginTop:"0.3rem"}}>{s.label}</div>
                   </div>
                 ))}
@@ -4831,7 +4740,7 @@ function ReferralDashboard({ onClose, commissionSettings }) {
               {/* Referral count */}
               <div style={{padding:"0.8rem 1.1rem",background:"#F7F2EA",border:`1px solid ${C.border}`,borderRadius:"6px",marginBottom:"1.2rem",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <span style={{fontSize:"0.82rem",color:C.muted}}>Successful referrals</span>
-                <span style={{fontFamily:"'Playfair Display',serif",fontSize:"1.1rem",color:C.gold,fontWeight:600}}>{(referrer.bookingRefs||[]).length}</span>
+                <span style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.1rem",color:C.gold,fontWeight:600}}>{(referrer.bookingRefs||[]).length}</span>
               </div>
 
               {/* Referral link reminder */}
@@ -4927,7 +4836,7 @@ function ReferralManager({ commissionSettings, onSaveSettings, referrals, onUpda
       {/* Page header */}
       <div style={{marginBottom:"2rem"}}>
         <div style={{fontSize:"0.65rem",letterSpacing:"0.3em",textTransform:"uppercase",color:C.gold,marginBottom:"0.4rem"}}>Referrals</div>
-        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400}}>Refer & Earn Manager</h2>
+        <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400}}>Refer & Earn Manager</h2>
         <p style={{fontSize:"0.85rem",color:C.muted,marginTop:"0.4rem"}}>Set commission rates, view active referrers, and process payout claims.</p>
       </div>
 
@@ -4941,7 +4850,7 @@ function ReferralManager({ commissionSettings, onSaveSettings, referrals, onUpda
           {label:"Total Paid Out",    val:`KES ${fmt(totalPaidOut)}`,      color:C.muted},
         ].map(s=>(
           <div key={s.label} style={{padding:"1.2rem",background:"#fff",border:`1px solid ${C.border}`,borderRadius:"8px",boxShadow:"0 2px 8px rgba(14,43,31,0.05)"}}>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.4rem",color:s.color,fontWeight:600}}>{s.val}</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.4rem",color:s.color,fontWeight:600}}>{s.val}</div>
             <div style={{fontSize:"0.62rem",letterSpacing:"0.15em",textTransform:"uppercase",color:C.muted,marginTop:"0.2rem"}}>{s.label}</div>
           </div>
         ))}
@@ -4977,7 +4886,7 @@ function ReferralManager({ commissionSettings, onSaveSettings, referrals, onUpda
               <span style={{fontSize:"0.62rem",letterSpacing:"0.18em",textTransform:"uppercase",color:C.muted}}>
                 {settings.type==="percentage"?"Commission Percentage":"Commission Amount (KES)"}
               </span>
-              <span style={{fontFamily:"'Playfair Display',serif",fontSize:"1.1rem",color:C.gold}}>
+              <span style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.1rem",color:C.gold}}>
                 {settings.type==="percentage" ? `${settings.value}%` : `KES ${fmt(settings.value)}`}
               </span>
             </label>
@@ -5043,7 +4952,7 @@ function ReferralManager({ commissionSettings, onSaveSettings, referrals, onUpda
                     <div style={{fontSize:"0.72rem",color:C.muted,marginTop:"0.2rem"}}>Requested: {r.claimRequestedAt||"—"} · {r.bookingRefs?.length||0} referral{r.bookingRefs?.length!==1?"s":""}</div>
                   </div>
                   <div style={{textAlign:"right",flexShrink:0}}>
-                    <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.4rem",color:C.gold,fontWeight:600}}>KES {fmt(r.pendingAmount)}</div>
+                    <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.4rem",color:C.gold,fontWeight:600}}>KES {fmt(r.pendingAmount)}</div>
                     <div style={{fontSize:"0.65rem",color:C.muted}}>pending payout</div>
                   </div>
                   <div style={{display:"flex",gap:"0.6rem",flexShrink:0}}>
@@ -5125,7 +5034,7 @@ function ReferPage({ commissionSettings, onOpenDashboard }) {
       <div style={{maxWidth:"800px",margin:"0 auto",padding:"3rem 1.5rem 5rem"}}>
         <div style={{textAlign:"center",marginBottom:"2.5rem"}}>
           <div style={{fontSize:"0.65rem",letterSpacing:"0.35em",textTransform:"uppercase",color:C.gold,marginBottom:"0.5rem"}}>How commissions work</div>
-          <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"2rem",color:"#0E2B1F",fontWeight:400}}>Simple. Transparent. Fast.</h2>
+          <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"2rem",color:"#0E2B1F",fontWeight:400}}>Simple. Transparent. Fast.</h2>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(min(100%,220px),1fr))",gap:"1rem",marginBottom:"2.5rem"}}>
           {[
@@ -5136,7 +5045,7 @@ function ReferPage({ commissionSettings, onOpenDashboard }) {
           ].map(f=>(
             <div key={f.title} style={{padding:"1.8rem",background:"#fff",border:`1px solid ${C.border}`,borderRadius:"8px",boxShadow:"0 2px 12px rgba(14,43,31,0.05)"}}>
               <div style={{fontSize:"1.8rem",marginBottom:"0.8rem"}}>{f.icon}</div>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1rem",color:"#0E2B1F",marginBottom:"0.5rem",fontWeight:500}}>{f.title}</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1rem",color:"#0E2B1F",marginBottom:"0.5rem",fontWeight:500}}>{f.title}</div>
               <div style={{fontSize:"0.82rem",color:C.muted,lineHeight:1.6}}>{f.desc}</div>
             </div>
           ))}
@@ -5216,7 +5125,7 @@ function HostProfileSetup({ onComplete }) {
     <div style={{minHeight:"100vh",background:"#0E2B1F",display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem"}}>
       <div style={{width:"100%",maxWidth:"420px",animation:"fadeUp 0.5s ease"}}>
         <div style={{textAlign:"center",marginBottom:"2rem"}}>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"2rem",color:"#F7F2EA"}}>{BRAND.name}<span style={{color:C.gold,fontStyle:"italic"}}>{BRAND.nameAccent}</span></div>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"2rem",color:"#F7F2EA"}}>{BRAND.name}<span style={{color:C.gold,fontStyle:"italic"}}>{BRAND.nameAccent}</span></div>
           <div style={{fontSize:"0.65rem",letterSpacing:"0.3em",textTransform:"uppercase",color:C.muted,marginTop:"0.3rem"}}>Host Portal — First-Time Setup</div>
         </div>
         <div style={{background:"#fff",borderRadius:"14px",padding:"2.2rem",boxShadow:"0 32px 80px rgba(0,0,0,0.3)"}}>
@@ -5226,7 +5135,7 @@ function HostProfileSetup({ onComplete }) {
           {step===1&&(<>
             <div style={{textAlign:"center",marginBottom:"1.5rem"}}>
               <div style={{fontSize:"1.8rem",marginBottom:"0.5rem"}}>👋</div>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.2rem",color:"#0E2B1F"}}>Welcome to your Host Portal</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.2rem",color:"#0E2B1F"}}>Welcome to your Host Portal</div>
               <div style={{fontSize:"0.78rem",color:C.muted,marginTop:"0.3rem"}}>Let's set up your account — takes 30 seconds.</div>
             </div>
             <div style={{marginBottom:"1rem"}}>
@@ -5244,7 +5153,7 @@ function HostProfileSetup({ onComplete }) {
           {step===2&&(<>
             <div style={{textAlign:"center",marginBottom:"1.5rem"}}>
               <div style={{fontSize:"1.8rem",marginBottom:"0.5rem"}}>🔐</div>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.2rem",color:"#0E2B1F"}}>Choose your login method</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.2rem",color:"#0E2B1F"}}>Choose your login method</div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.6rem",marginBottom:"1.4rem"}}>
               {[{id:"pin",icon:"🔢",label:"4-Digit PIN",sub:"Quick tap"},{id:"password",icon:"🔑",label:"Password",sub:"More secure"}].map(m=>(
@@ -5325,7 +5234,7 @@ function AdminLogin({ onLogin, profile }) {
       <div style={{position:"absolute",inset:0,backgroundImage:"url(https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1400&q=60)",backgroundSize:"cover",backgroundPosition:"center",opacity:0.06}}/>
       <div style={{position:"relative",width:"100%",maxWidth:"380px",animation:"fadeUp 0.6s ease"}}>
         <div style={{textAlign:"center",marginBottom:"2.5rem"}}>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"2rem",color:"#F7F2EA"}}>{BRAND.name}<span style={{color:C.gold,fontStyle:"italic"}}>{BRAND.nameAccent}</span></div>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"2rem",color:"#F7F2EA"}}>{BRAND.name}<span style={{color:C.gold,fontStyle:"italic"}}>{BRAND.nameAccent}</span></div>
           <div style={{fontSize:"0.68rem",letterSpacing:"0.3em",textTransform:"uppercase",color:C.muted,marginTop:"0.25rem"}}>Host Portal</div>
         </div>
         {!showMaster?(
@@ -5355,7 +5264,7 @@ function AdminLogin({ onLogin, profile }) {
 @keyframes disco{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}`}</style>
             <div style={{textAlign:"center",marginBottom:"1.8rem"}}>
               <div style={{width:"52px",height:"52px",borderRadius:"50%",background:C.goldDim,border:`1px solid ${C.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.4rem",margin:"0 auto 1rem"}}>🔐</div>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.3rem",color:"#0E2B1F",marginBottom:"0.25rem"}}>{profile?`Welcome back${profile.name?", "+profile.name.split(" ")[0]:""}!`:"Welcome back"}</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.3rem",color:"#0E2B1F",marginBottom:"0.25rem"}}>{profile?`Welcome back${profile.name?", "+profile.name.split(" ")[0]:""}!`:"Welcome back"}</div>
               <div style={{fontSize:"0.78rem",color:C.muted}}>{isPIN?"Enter your 4-digit PIN":"Enter your password"}</div>
             </div>
             {isPIN?(<>
@@ -5386,7 +5295,7 @@ function AdminLogin({ onLogin, profile }) {
           <div style={{background:"#fff",borderRadius:"14px",padding:"2.2rem",boxShadow:"0 32px 80px rgba(0,0,0,0.3)"}}>
             <div style={{textAlign:"center",marginBottom:"1.5rem"}}>
               <div style={{fontSize:"1.8rem",marginBottom:"0.5rem"}}>🛠</div>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.2rem",color:"#0E2B1F"}}>Developer Access</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.2rem",color:"#0E2B1F"}}>Developer Access</div>
               <div style={{fontSize:"0.76rem",color:C.muted,marginTop:"0.3rem"}}>Enter the master password for this deployment.</div>
             </div>
             <input type="password" value={masterPw} onChange={e=>{setMasterPw(e.target.value);setMasterErr("");}} onKeyDown={e=>e.key==="Enter"&&masterLogin()} style={inp} onFocus={e=>e.target.style.borderColor=C.gold} onBlur={e=>e.target.style.borderColor=C.border} placeholder="Master password" autoFocus/>
@@ -5409,7 +5318,7 @@ function StatCard({ icon, label, value, sub, color }) {
         <div style={{fontSize:"1.4rem"}}>{icon}</div>
         {sub&&<div style={{fontSize:"0.65rem",padding:"0.2rem 0.5rem",background:C.goldDim,border:`1px solid ${C.border}`,borderRadius:"3px",color:C.gold,letterSpacing:"0.1em"}}>{sub}</div>}
       </div>
-      <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.9rem",color:color||C.gold,marginBottom:"0.3rem"}}>{value}</div>
+      <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.9rem",color:color||C.gold,marginBottom:"0.3rem"}}>{value}</div>
       <div style={{fontSize:"0.72rem",letterSpacing:"0.15em",textTransform:"uppercase",color:C.muted}}>{label}</div>
     </div>
   );
@@ -5470,7 +5379,7 @@ function DashboardHome({ listings, bookings }) {
     <div>
       <div style={{marginBottom:"2rem"}}>
         <div style={{fontSize:"0.68rem",letterSpacing:"0.3em",textTransform:"uppercase",color:C.gold,marginBottom:"0.4rem"}}>Overview</div>
-        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400}}>Dashboard</h2>
+        <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400}}>Dashboard</h2>
       </div>
 
       {/* Stats grid */}
@@ -5485,7 +5394,7 @@ function DashboardHome({ listings, bookings }) {
 
       {/* Listings occupancy */}
       <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"10px",padding:"1.5rem",marginBottom:"2rem",boxShadow:"0 2px 12px rgba(14,43,31,0.06)"}}>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.1rem",color:"#0E2B1F",marginBottom:"1.2rem",fontWeight:400}}>Listing Occupancy — June 2026</div>
+        <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.1rem",color:"#0E2B1F",marginBottom:"1.2rem",fontWeight:400}}>Listing Occupancy — June 2026</div>
         <div style={{display:"flex",flexDirection:"column",gap:"0.8rem"}}>
           {listings.map(l=>{
             const lBookings=bookings.filter(b=>b.listing?.id===l.id);
@@ -5509,7 +5418,7 @@ function DashboardHome({ listings, bookings }) {
 
       {/* Recent bookings */}
       <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"10px",padding:"1.5rem",boxShadow:"0 2px 12px rgba(14,43,31,0.06)"}}>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.1rem",color:"#0E2B1F",marginBottom:"1.2rem",fontWeight:400}}>Recent Bookings</div>
+        <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.1rem",color:"#0E2B1F",marginBottom:"1.2rem",fontWeight:400}}>Recent Bookings</div>
         {bookings.length===0?(
           <div style={{textAlign:"center",padding:"2rem",color:C.muted,fontSize:"0.85rem"}}>No bookings yet. When guests book, they'll appear here.</div>
         ):(
@@ -5550,7 +5459,7 @@ function BookingsManager({ bookings, listings }) {
     <div>
       <div style={{marginBottom:"2rem"}}>
         <div style={{fontSize:"0.68rem",letterSpacing:"0.3em",textTransform:"uppercase",color:C.gold,marginBottom:"0.4rem"}}>Records</div>
-        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400}}>All Bookings</h2>
+        <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400}}>All Bookings</h2>
       </div>
       {/* Filters */}
       <div style={{display:"flex",gap:"0.8rem",marginBottom:"1.5rem",flexWrap:"wrap"}}>
@@ -5588,7 +5497,7 @@ function BookingsManager({ bookings, listings }) {
                 <div style={{fontSize:"0.75rem",color:C.muted,marginTop:"0.15rem"}}>{fmtDate(b.checkIn)} → {fmtDate(b.checkOut)} · {b.nights}n · {b.guests} guest{b.guests>1?"s":""}</div>
               </div>
               <div style={{textAlign:"right",flexShrink:0}}>
-                <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.1rem",color:C.gold}}>KES {fmt(b.total)}</div>
+                <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.1rem",color:C.gold}}>KES {fmt(b.total)}</div>
                 <div style={{fontSize:"0.65rem",color:C.success,marginTop:"0.1rem"}}>✓ Confirmed</div>
               </div>
             </div>
@@ -5636,13 +5545,13 @@ function SettingsPanel({ onLogout, hostProfile, onProfileSaved }) {
     <div>
       <div style={{marginBottom:"2rem"}}>
         <div style={{fontSize:"0.68rem",letterSpacing:"0.3em",textTransform:"uppercase",color:C.gold,marginBottom:"0.4rem"}}>Configuration</div>
-        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400}}>Settings</h2>
+        <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400}}>Settings</h2>
       </div>
 
       {/* Host profile card */}
       {hostProfile&&(
         <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"10px",padding:"1.5rem 1.8rem",marginBottom:"1.5rem",maxWidth:"480px",boxShadow:"0 2px 12px rgba(14,43,31,0.06)"}}>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.1rem",color:"#0E2B1F",marginBottom:"1rem",fontWeight:400}}>Your Profile</div>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.1rem",color:"#0E2B1F",marginBottom:"1rem",fontWeight:400}}>Your Profile</div>
           <div style={{display:"grid",gap:"0.6rem"}}>
             {[{label:"Name",value:hostProfile.name},{label:"Contact",value:hostProfile.contact},{label:"Login method",value:hostProfile.authMethod==="pin"?"4-Digit PIN":"Password"},{label:"Account set up",value:hostProfile.setupAt?new Date(hostProfile.setupAt).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}):"—"}].map(r=>(
               <div key={r.label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"0.5rem 0",borderBottom:`1px solid ${C.border}`}}>
@@ -5656,7 +5565,7 @@ function SettingsPanel({ onLogout, hostProfile, onProfileSaved }) {
 
       {/* Credential change */}
       <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"10px",padding:"1.8rem",marginBottom:"1.5rem",maxWidth:"520px",boxShadow:"0 2px 12px rgba(14,43,31,0.06)"}}>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.1rem",color:"#0E2B1F",marginBottom:"1.2rem",fontWeight:400}}>Change {label}</div>
+        <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.1rem",color:"#0E2B1F",marginBottom:"1.2rem",fontWeight:400}}>Change {label}</div>
         {[{lbl:`Current ${label}`,val:currentCred,set:setCurrentCred},{lbl:`New ${label}${isPIN?" (4 digits)":""} `,val:newCred,set:setNewCred},{lbl:`Confirm new ${label}`,val:confirmCred,set:setConfirmCred}].map(f=>(
           <div key={f.lbl} style={{marginBottom:"0.9rem"}}>
             <label style={{display:"block",fontSize:"0.65rem",letterSpacing:"0.18em",textTransform:"uppercase",color:C.muted,marginBottom:"0.3rem"}}>{f.lbl}</label>
@@ -5717,7 +5626,7 @@ function EditorSection({ title, icon, children }) {
       <button onClick={()=>setOpen(o=>!o)} style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"1rem 1.4rem",background:open?"#fff":"#FAFAF7",border:"none",cursor:"pointer",color:"#0E2B1F",borderBottom:open?`1px solid ${C.border}`:"none"}}>
         <div style={{display:"flex",alignItems:"center",gap:"0.7rem"}}>
           <span style={{fontSize:"1rem"}}>{icon}</span>
-          <span style={{fontFamily:"'Playfair Display',serif",fontSize:"1rem",fontWeight:500}}>{title}</span>
+          <span style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1rem",fontWeight:500}}>{title}</span>
         </div>
         <span style={{color:C.muted,fontSize:"0.85rem",transition:"transform 0.2s",transform:open?"rotate(180deg)":"rotate(0deg)"}}>▾</span>
       </button>
@@ -5970,7 +5879,7 @@ function BookedDateManager({ bookedDates, onChange }) {
         <div style={{background:"#F7F2EA",border:`1px solid ${C.border}`,borderRadius:"8px",padding:"1rem"}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.8rem"}}>
             <button onClick={prevM} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:"1.1rem"}} onMouseEnter={e=>e.target.style.color=C.gold} onMouseLeave={e=>e.target.style.color=C.muted}>‹</button>
-            <span style={{fontFamily:"'Playfair Display',serif",fontSize:"0.95rem",color:"#F7F2EA"}}>{MONTHS[month]} {year}</span>
+            <span style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"0.95rem",color:"#F7F2EA"}}>{MONTHS[month]} {year}</span>
             <button onClick={nextM} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:"1.1rem"}} onMouseEnter={e=>e.target.style.color=C.gold} onMouseLeave={e=>e.target.style.color=C.muted}>›</button>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:"2px",marginBottom:"4px"}}>
@@ -6060,7 +5969,7 @@ function ListingEditor({ listing, onSave, onCancel }) {
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1.8rem",flexWrap:"wrap",gap:"1rem"}}>
         <div>
           <button onClick={handleCancel} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:"0.78rem",letterSpacing:"0.12em",textTransform:"uppercase",display:"flex",alignItems:"center",gap:"0.4rem",padding:0,marginBottom:"0.5rem"}} onMouseEnter={e=>e.target.style.color=C.gold} onMouseLeave={e=>e.target.style.color=C.muted}>← All Listings</button>
-          <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.6rem",color:"#0E2B1F",fontWeight:400}}>Editing: <em style={{color:C.gold}}>{listing.name}</em></h2>
+          <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.6rem",color:"#0E2B1F",fontWeight:400}}>Editing: <em style={{color:C.gold}}>{listing.name}</em></h2>
           {unsaved&&<div style={{fontSize:"0.7rem",color:"#64A0DC",marginTop:"0.3rem"}}>● Unsaved changes</div>}
         </div>
         <div style={{display:"flex",gap:"0.7rem",alignItems:"center"}}>
@@ -6137,7 +6046,7 @@ function ListingEditor({ listing, onSave, onCancel }) {
           {[["1 night",draft.pricePerNight+draft.cleaningFee],["3 nights",3*draft.pricePerNight+draft.cleaningFee],["7 nights",7*draft.pricePerNight+draft.cleaningFee],["30 nights",30*draft.pricePerNight+draft.cleaningFee]].map(([l,v])=>(
             <div key={l}>
               <div style={{fontSize:"0.6rem",color:C.muted,letterSpacing:"0.15em",textTransform:"uppercase",marginBottom:"0.2rem"}}>{l}</div>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.05rem",color:C.gold}}>KES {fmt(v)}</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.05rem",color:C.gold}}>KES {fmt(v)}</div>
             </div>
           ))}
         </div>
@@ -6596,7 +6505,7 @@ function ImportListingFromUrl({ onImport, onCancel }) {
       {/* Header */}
       <div style={{marginBottom:"2rem"}}>
         <button onClick={onCancel} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:"0.78rem",letterSpacing:"0.12em",textTransform:"uppercase",padding:0,marginBottom:"0.5rem"}} onMouseEnter={e=>e.target.style.color=C.gold} onMouseLeave={e=>e.target.style.color=C.muted}>← Back to Listings</button>
-        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.7rem",color:"#0E2B1F",fontWeight:400}}>Import <em style={{color:C.gold}}>from URL</em></h2>
+        <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.7rem",color:"#0E2B1F",fontWeight:400}}>Import <em style={{color:C.gold}}>from URL</em></h2>
         <p style={{fontSize:"0.84rem",color:C.muted,marginTop:"0.4rem",lineHeight:1.6}}>
           Paste any property URL — Airbnb, Booking.com, VRBO, or your own site. Photos, description, and details are extracted automatically, then refined with AI where available.
         </p>
@@ -6630,7 +6539,7 @@ function ImportListingFromUrl({ onImport, onCancel }) {
       {isLoading && (
         <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"10px",padding:"3.5rem 2rem",textAlign:"center",boxShadow:"0 2px 12px rgba(14,43,31,0.06)"}}>
           <div style={{width:"48px",height:"48px",border:`3px solid ${C.goldDim}`,borderTop:`3px solid ${C.gold}`,borderRadius:"50%",animation:"spin 0.9s linear infinite",margin:"0 auto 1.5rem"}}/>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"0.5rem"}}>{statusMsg}</div>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"0.5rem"}}>{statusMsg}</div>
           <div style={{fontSize:"0.8rem",color:C.muted,fontFamily:"monospace",wordBreak:"break-all",maxWidth:"460px",margin:"0 auto",opacity:0.6}}>{url}</div>
         </div>
       )}
@@ -6823,7 +6732,7 @@ function NewListingWizard({ onSave, onCancel }) {
           <button onClick={onCancel} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:"0.78rem",letterSpacing:"0.12em",textTransform:"uppercase",padding:0,marginBottom:"0.5rem",display:"flex",alignItems:"center",gap:"0.3rem"}} onMouseEnter={e=>e.target.style.color=C.gold} onMouseLeave={e=>e.target.style.color=C.muted}>
             {"<"} Back to Listings
           </button>
-          <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.7rem",color:"#0E2B1F",fontWeight:400}}>
+          <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.7rem",color:"#0E2B1F",fontWeight:400}}>
             Add New <em style={{color:C.gold}}>Listing</em>
           </h2>
         </div>
@@ -6850,7 +6759,7 @@ function NewListingWizard({ onSave, onCancel }) {
         {/* ── Step 1: Basic Info ── */}
         {step===1&&(
           <div style={{animation:"fadeIn 0.25s ease"}}>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"1.5rem",fontWeight:400}}>Tell us about this property</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"1.5rem",fontWeight:400}}>Tell us about this property</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem"}}>
               <div style={{gridColumn:"1/-1"}}>
                 {label("Listing Name *")}
@@ -6894,7 +6803,7 @@ function NewListingWizard({ onSave, onCancel }) {
         {/* ── Step 2: Details & Amenities ── */}
         {step===2&&(
           <div style={{animation:"fadeIn 0.25s ease"}}>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"1.5rem",fontWeight:400}}>Space details & what's included</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"1.5rem",fontWeight:400}}>Space details & what's included</div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"1rem",marginBottom:"1.5rem"}}>
               {[{l:"Bedrooms",k:"bedrooms",min:0,max:10},{l:"Bathrooms",k:"bathrooms",min:1,max:10},{l:"Max Guests",k:"guests",min:1,max:20},{l:"Size (sqm)",k:"sqm",min:10,max:2000}].map(f=>(
                 <div key={f.k}>
@@ -6907,10 +6816,10 @@ function NewListingWizard({ onSave, onCancel }) {
                 </div>
               ))}
             </div>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1rem",color:"#0E2B1F",marginBottom:"1rem",fontWeight:400}}>Amenities</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1rem",color:"#0E2B1F",marginBottom:"1rem",fontWeight:400}}>Amenities</div>
             <AmenityPicker selected={draft.amenities} onChange={v=>set("amenities",v)}/>
             <div style={{marginTop:"1.5rem"}}>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1rem",color:"#0E2B1F",marginBottom:"0.8rem",fontWeight:400}}>House Rules</div>
+              <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1rem",color:"#0E2B1F",marginBottom:"0.8rem",fontWeight:400}}>House Rules</div>
               <RulesEditor rules={draft.houseRules} onChange={v=>set("houseRules",v)}/>
             </div>
           </div>
@@ -6919,7 +6828,7 @@ function NewListingWizard({ onSave, onCancel }) {
         {/* ── Step 3: Photos ── */}
         {step===3&&(
           <div style={{animation:"fadeIn 0.25s ease"}}>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"0.5rem",fontWeight:400}}>Add photos</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"0.5rem",fontWeight:400}}>Add photos</div>
             <div style={{fontSize:"0.8rem",color:C.muted,marginBottom:"1.2rem"}}>Add at least one photo. The first photo is used as the cover image on listing cards.</div>
             {errors.photos&&<div style={{...errStyle,marginBottom:"0.8rem",padding:"0.5rem 0.8rem",background:"rgba(224,82,82,0.08)",borderRadius:"4px",border:"1px solid rgba(224,82,82,0.2)"}}>{errors.photos}</div>}
             <PhotoManager photos={draft.photos} onChange={v=>set("photos",v)}/>
@@ -6929,7 +6838,7 @@ function NewListingWizard({ onSave, onCancel }) {
         {/* ── Step 4: Pricing & Publish ── */}
         {step===4&&(
           <div style={{animation:"fadeIn 0.25s ease"}}>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"1.5rem",fontWeight:400}}>Set your pricing</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"1.5rem",fontWeight:400}}>Set your pricing</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem",marginBottom:"1.5rem"}}>
               <div>
                 {label("Price Per Night (KES) *")}
@@ -6955,7 +6864,7 @@ function NewListingWizard({ onSave, onCancel }) {
                 {[[1,draft.pricePerNight+draft.cleaningFee],[3,3*draft.pricePerNight+draft.cleaningFee],[7,7*draft.pricePerNight+draft.cleaningFee],[30,30*draft.pricePerNight+draft.cleaningFee]].map(([n,v])=>(
                   <div key={n}>
                     <div style={{fontSize:"0.6rem",color:C.muted,textTransform:"uppercase",letterSpacing:"0.12em"}}>{n} night{n>1?"s":""}</div>
-                    <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.1rem",color:C.gold}}>KES {fmt(v)}</div>
+                    <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.1rem",color:C.gold}}>KES {fmt(v)}</div>
                   </div>
                 ))}
               </div>
@@ -7032,7 +6941,7 @@ function AdminListingCard({ listing, bookings, onEdit, onDelete }) {
         <div style={{position:"absolute",inset:0,background:"linear-gradient(180deg,transparent 40%,rgba(14,43,31,0.45) 100%)",pointerEvents:"none"}}/>
       </div>
       <div style={{padding:"1.1rem"}}>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1rem",color:"#0E2B1F",marginBottom:"0.2rem",fontWeight:500,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{listing.name||<span style={{color:C.muted,fontStyle:"italic"}}>Untitled listing</span>}</div>
+        <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1rem",color:"#0E2B1F",marginBottom:"0.2rem",fontWeight:500,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{listing.name||<span style={{color:C.muted,fontStyle:"italic"}}>Untitled listing</span>}</div>
         <div style={{fontSize:"0.72rem",color:C.muted,marginBottom:"0.8rem"}}>{listing.neighborhood||"—"} · {listing.type}</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.4rem",marginBottom:"1rem"}}>
           {[{l:"Rate/night",v:`KES ${fmt(listing.pricePerNight)}`},{l:"Revenue",v:`KES ${fmt(lRev)}`},{l:"Nights blocked",v:bookedCount},{l:"Bookings",v:lBookings.length}].map(s=>(
@@ -7094,7 +7003,7 @@ function AdminListings({ listings, bookings, onUpdate, onCreate, onDelete }) {
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"2rem",flexWrap:"wrap",gap:"1rem"}}>
         <div>
           <div style={{fontSize:"0.68rem",letterSpacing:"0.3em",textTransform:"uppercase",color:C.gold,marginBottom:"0.4rem"}}>Portfolio</div>
-          <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400}}>All Listings</h2>
+          <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400}}>All Listings</h2>
           <div style={{display:"flex",gap:"1rem",marginTop:"0.4rem",fontSize:"0.78rem"}}>
             <span style={{color:C.success}}>● {live.length} Live</span>
             <span style={{color:C.muted}}>● {paused.length} Paused</span>
@@ -7114,7 +7023,7 @@ function AdminListings({ listings, bookings, onUpdate, onCreate, onDelete }) {
       {listings.length===0?(
         <div style={{textAlign:"center",padding:"5rem 2rem",background:"#fff",border:`2px dashed ${C.border}`,borderRadius:"12px"}}>
           <div style={{fontSize:"3rem",marginBottom:"1rem"}}>🏠</div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.4rem",color:"#0E2B1F",marginBottom:"0.6rem"}}>No listings yet</div>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.4rem",color:"#0E2B1F",marginBottom:"0.6rem"}}>No listings yet</div>
           <div style={{fontSize:"0.85rem",color:C.muted,marginBottom:"1.5rem"}}>Create a listing manually or import one from Airbnb, Booking.com, and more.</div>
           <div style={{display:"flex",gap:"0.7rem",justifyContent:"center",flexWrap:"wrap"}}>
             <button onClick={()=>setMode("import-url")} style={{padding:"0.8rem 1.6rem",background:"transparent",color:C.sage,border:`1px solid ${C.border}`,borderRadius:"6px",fontWeight:600,fontSize:"0.82rem",cursor:"pointer",transition:"all 0.2s"}} onMouseEnter={e=>{e.currentTarget.style.borderColor=C.gold;e.currentTarget.style.color=C.gold;}} onMouseLeave={e=>{e.currentTarget.style.borderColor=C.border;e.currentTarget.style.color=C.sage;}}>
@@ -7373,7 +7282,7 @@ function ImportModal({ listing, platform, onClose, onImport }) {
         <div style={{padding:"1.5rem 1.8rem",borderBottom:`1px solid ${C.border}`,display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,background:C.card,zIndex:2}}>
           <div>
             <div style={{fontSize:"0.62rem",letterSpacing:"0.25em",textTransform:"uppercase",color:C.gold,marginBottom:"0.3rem"}}>Import Calendar</div>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.15rem",color:"#0E2B1F"}}>{listing.name}</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.15rem",color:"#0E2B1F"}}>{listing.name}</div>
             <div style={{fontSize:"0.75rem",color:C.muted,marginTop:"0.1rem",display:"flex",alignItems:"center",gap:"0.4rem"}}>
               <span style={{color:p.color}}>{p.icon}</span>{p.name}
             </div>
@@ -7510,7 +7419,7 @@ function ICalListingRow({ listing, bookings, syncConfigs, onImport, onExport, on
       <div style={{display:"flex",alignItems:"center",gap:"1rem",padding:"1rem 1.4rem",cursor:"pointer"}} onClick={()=>setExpanded(e=>!e)}>
         <img src={listing.photos[0]} alt="" style={{width:"52px",height:"40px",objectFit:"cover",borderRadius:"5px",flexShrink:0}}/>
         <div style={{flex:1,minWidth:0}}>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"0.95rem",color:"#0E2B1F",fontWeight:500,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{listing.name}</div>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"0.95rem",color:"#0E2B1F",fontWeight:500,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{listing.name}</div>
           <div style={{fontSize:"0.72rem",color:C.muted,marginTop:"0.1rem"}}>{listing.neighborhood} · {(listing.bookedDates||[]).length} blocked dates · {configs.length} sync{configs.length!==1?"s":""} connected</div>
         </div>
         {/* Export button */}
@@ -7704,7 +7613,7 @@ function ICalSyncManager({ listings, bookings, onListingUpdate }) {
       {/* Header */}
       <div style={{marginBottom:"2rem"}}>
         <div style={{fontSize:"0.68rem",letterSpacing:"0.3em",textTransform:"uppercase",color:C.gold,marginBottom:"0.4rem"}}>Calendar Sync</div>
-        <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400}}>iCal Sync</h2>
+        <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.8rem",color:"#0E2B1F",fontWeight:400}}>iCal Sync</h2>
         <p style={{fontSize:"0.82rem",color:C.muted,marginTop:"0.3rem",lineHeight:1.7,maxWidth:"580px"}}>
           Import blocked dates from Airbnb, Booking.com, VRBO and others. Export your calendar for any platform. Keep all your channels in sync.
         </p>
@@ -7719,7 +7628,7 @@ function ICalSyncManager({ listings, bookings, onListingUpdate }) {
         ].map(s=>(
           <div key={s.title} style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"8px",padding:"1.1rem",boxShadow:"0 2px 8px rgba(14,43,31,0.06)"}}>
             <div style={{fontSize:"1.4rem",marginBottom:"0.5rem"}}>{s.icon}</div>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:"0.9rem",color:"#0E2B1F",marginBottom:"0.3rem",fontWeight:500}}>{s.title}</div>
+            <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"0.9rem",color:"#0E2B1F",marginBottom:"0.3rem",fontWeight:500}}>{s.title}</div>
             <div style={{fontSize:"0.75rem",color:C.muted,lineHeight:1.6}}>{s.desc}</div>
           </div>
         ))}
@@ -7755,7 +7664,7 @@ function ICalSyncManager({ listings, bookings, onListingUpdate }) {
       {/* Sync Log */}
       {syncLog.length>0&&(
         <div style={{marginTop:"2rem"}}>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.1rem",color:"#0E2B1F",marginBottom:"1rem",fontWeight:400}}>Sync History</div>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.1rem",color:"#0E2B1F",marginBottom:"1rem",fontWeight:400}}>Sync History</div>
           <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"8px",overflow:"hidden",boxShadow:"0 4px 16px rgba(14,43,31,0.08)"}}>
             {syncLog.slice(0,12).map((e,i)=>(
               <div key={i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0.75rem 1.2rem",borderBottom:i<syncLog.length-1?`1px solid ${C.border}`:"none",flexWrap:"wrap",gap:"0.5rem"}}>
@@ -7871,7 +7780,7 @@ function Footer({ onNavigate, onMyBookings }) {
     <footer style={{background:"#0E2B1F",borderTop:"1px solid rgba(197,151,58,0.3)",padding:"2rem 1.5rem"}}>
       <div style={{maxWidth:"1200px",margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:"1.5rem"}}>
         <div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.4rem",color:"#F7F2EA",marginBottom:"0.4rem"}}>{BRAND.name}<span style={{color:C.gold,fontStyle:"italic"}}>{BRAND.nameAccent}</span></div>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.4rem",color:"#F7F2EA",marginBottom:"0.4rem"}}>{BRAND.name}<span style={{color:C.gold,fontStyle:"italic"}}>{BRAND.nameAccent}</span></div>
           <div style={{fontSize:"0.78rem",color:"rgba(247,242,234,0.6)"}}>Premium short stays · {BRAND.city}, {BRAND.country}</div>
         </div>
         <div style={{display:"flex",gap:"2rem",flexWrap:"wrap"}}>
@@ -7897,7 +7806,7 @@ function HomePage({ listings, onSelect, onNavigate, promoConfig, activeHoliday, 
         <div style={{maxWidth:"1200px",margin:"0 auto"}}>
           <div style={{textAlign:"center",marginBottom:"3.5rem"}}>
             <div style={{fontSize:"0.68rem",letterSpacing:"0.35em",textTransform:"uppercase",color:C.gold,marginBottom:"0.8rem"}}>Featured</div>
-            <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(2rem,4vw,3rem)",color:"#0E2B1F",fontWeight:400}}>Handpicked <em style={{color:C.gold,fontStyle:"italic"}}>for you</em></h2>
+            <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"clamp(2rem,4vw,3rem)",color:"#0E2B1F",fontWeight:400}}>Handpicked <em style={{color:C.gold,fontStyle:"italic"}}>for you</em></h2>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(340px,1fr))",gap:"1.8rem"}}>
             {listings.slice(0,3).map(l=><ListingCard key={l.id} listing={l} onClick={()=>activeHoliday&&onSelectWithHoliday?onSelectWithHoliday(l,activeHoliday):onSelect(l)} activeHoliday={activeHoliday}/>)}
@@ -7915,13 +7824,13 @@ function HomePage({ listings, onSelect, onNavigate, promoConfig, activeHoliday, 
         <div style={{maxWidth:"1200px",margin:"0 auto"}}>
           <div style={{textAlign:"center",marginBottom:"3.5rem"}}>
             <div style={{fontSize:"0.68rem",letterSpacing:"0.35em",textTransform:"uppercase",color:C.gold,marginBottom:"0.8rem"}}>Why Choose Us</div>
-            <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(2rem,4vw,3rem)",color:"#0E2B1F",fontWeight:400}}>The {BRAND.name} <em style={{color:C.gold,fontStyle:"italic"}}>difference</em></h2>
+            <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"clamp(2rem,4vw,3rem)",color:"#0E2B1F",fontWeight:400}}>The {BRAND.name} <em style={{color:C.gold,fontStyle:"italic"}}>difference</em></h2>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(min(100%,220px),1fr))",gap:"1rem"}}>
             {[{icon:"✦",title:"Curated Spaces",desc:"Every property is personally inspected and styled — no compromises."},{icon:"⚡",title:"Fast WiFi",desc:"Fibre connectivity guaranteed in every listing."},{icon:"🔑",title:"Flexible Check-in",desc:"Self check-in on all properties. Arrive on your terms."},{icon:"🛡",title:"24/7 Support",desc:"Always reachable. Issues resolved — not escalated."}].map(f=>(
               <div key={f.title} style={{padding:"2.2rem",background:"#fff",border:`1px solid ${C.border}`,borderRadius:"6px",transition:"all 0.2s",boxShadow:"0 2px 12px rgba(14,43,31,0.06)"}} onMouseEnter={e=>{e.currentTarget.style.borderColor=C.gold;e.currentTarget.style.boxShadow="0 8px 24px rgba(14,43,31,0.12)";}} onMouseLeave={e=>{e.currentTarget.style.borderColor=C.border;e.currentTarget.style.boxShadow="0 2px 12px rgba(14,43,31,0.06)";}}>
                 <div style={{fontSize:"1.5rem",marginBottom:"1rem",color:C.gold}}>{f.icon}</div>
-                <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"0.7rem",fontWeight:500}}>{f.title}</div>
+                <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.15rem",color:"#0E2B1F",marginBottom:"0.7rem",fontWeight:500}}>{f.title}</div>
                 <div style={{fontSize:"0.85rem",color:C.muted,lineHeight:1.7,fontWeight:300}}>{f.desc}</div>
               </div>
             ))}
@@ -7943,7 +7852,7 @@ export class AppErrorBoundary extends React.Component {
       <div style={{minHeight:"100vh",background:"#0E2B1F",display:"flex",alignItems:"center",justifyContent:"center",padding:"2rem"}}>
         <div style={{background:"#fff",borderRadius:"12px",padding:"2.5rem",maxWidth:"480px",textAlign:"center",boxShadow:"0 32px 80px rgba(0,0,0,0.4)"}}>
           <div style={{fontSize:"2.5rem",marginBottom:"1rem"}}>⚠️</div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.4rem",color:"#0E2B1F",marginBottom:"0.8rem"}}>Something went wrong</div>
+          <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.4rem",color:"#0E2B1F",marginBottom:"0.8rem"}}>Something went wrong</div>
           <div style={{fontSize:"0.83rem",color:"#666",lineHeight:1.7,marginBottom:"1.5rem"}}>
             The page ran into an unexpected error. This is usually caused by a data issue or a lost connection to the database. Refreshing usually fixes it.
           </div>
@@ -8121,7 +8030,7 @@ export default function App() {
 
   if(loading) return (
     <div style={{height:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#FDFAF5"}}>
-      <div style={{fontFamily:"'Playfair Display',serif",fontSize:"1.5rem",color:C.sage,animation:"shimmer 1.2s ease infinite"}}>{BRAND.name}<em>{BRAND.nameAccent}</em></div>
+      <div style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.5rem",color:C.sage,animation:"shimmer 1.2s ease infinite"}}>{BRAND.name}<em>{BRAND.nameAccent}</em></div>
     </div>
   );
 
