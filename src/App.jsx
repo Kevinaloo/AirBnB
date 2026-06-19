@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "./supabase.js";
 import { BRAND, CONCIERGE_SYSTEM_PROMPT } from "./brand.config.js";
 
