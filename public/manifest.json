@@ -1,11 +1,11 @@
 {
-  "name": "Shikaz Homes",
-  "short_name": "Shikaz",
-  "description": "Luxury short-stay apartments in Nairobi. Book direct, pay via M-Pesa.",
+  "name": "Bridge Homes",
+  "short_name": "Bridge",
+  "description": "Premium short-stay apartments. Book direct, pay via M-Pesa.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0E2B1F",
-  "theme_color": "#0E2B1F",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FF6B6B",
   "orientation": "portrait-primary",
   "icons": [
     {
