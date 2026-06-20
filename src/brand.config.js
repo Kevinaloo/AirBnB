@@ -16,9 +16,9 @@ export const BRAND = {
   // Full business name as shown in nav/footer. Keep it as two parts
   // (name + accent) — name is the main word, nameAccent is italic & gradient.
   // Leave nameAccent "" to use the full name in a single style.
-  name: "Bridge",
+  name: "MARKNEXX",
   nameAccent: "Homes",
-  fullName: "Bridge Homes",
+  fullName: "MARKNEXX Homes",
 
   // ── Logo ────────────────────────────────────────────────────────
   // Set to a URL for an image logo, leave "" to use the text logo.
@@ -39,11 +39,11 @@ export const BRAND = {
   // Lowercase, no spaces. Used as the Supabase kv_store key prefix,
   // so changing this on an EXISTING deployment will orphan old data.
   // Fine to set freely on a fresh client deployment.
-  slug: "bridgehomes",
+  slug: "marknexxhomes",
   // Booking reference prefix, e.g. "SHK-A1B2C3"
   refPrefix: "BRH",
   // Used in .ics UID domain and PRODID — cosmetic, no spaces.
-  icsDomain: "bridgehomes",
+  icsDomain: "marknexxhomes",
 
   // ── Default contact info ────────────────────────────────────────
   // These are just the starting values — the host can overwrite all
@@ -55,7 +55,7 @@ export const BRAND = {
   phone: "+254 700 000 000",
 
   // ── AI Concierge ─────────────────────────────────────────────
-  conciergeName: "Bridge",
+  conciergeName: "Mark",
   // Full system prompt for the Groq-powered concierge chat widget.
   // The Nairobi-specific venue/restaurant/nightlife knowledge below
   // is what makes the concierge feel "local" — for a client in a
