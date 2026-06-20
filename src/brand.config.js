@@ -39,23 +39,23 @@ export const BRAND = {
   // Lowercase, no spaces. Used as the Supabase kv_store key prefix,
   // so changing this on an EXISTING deployment will orphan old data.
   // Fine to set freely on a fresh client deployment.
-  slug: "shikaz",
+  slug: "bridgehomes",
   // Booking reference prefix, e.g. "SHK-A1B2C3"
-  refPrefix: "SHK",
+  refPrefix: "BRH",
   // Used in .ics UID domain and PRODID — cosmetic, no spaces.
-  icsDomain: "shikazhomes",
+  icsDomain: "bridgehomes",
 
   // ── Default contact info ────────────────────────────────────────
   // These are just the starting values — the host can overwrite all
   // of them from the Host Portal → Site Content admin panel without
   // touching code. Set placeholders here for a fresh client.
-  whatsapp: "254745802200",
-  whatsappDisplay: "+254 745 802 200",
-  email: "hello@shikazhomes.co.ke",
-  phone: "+254 745 802 200",
+  whatsapp: "25470000000",
+  whatsappDisplay: "+254 700 000 000",
+  email: "hello@bridgehomes.co.ke",
+  phone: "+254 700 000 000",
 
   // ── AI Concierge ─────────────────────────────────────────────
-  conciergeName: "Amara",
+  conciergeName: "Bridge",
   // Full system prompt for the Groq-powered concierge chat widget.
   // The Nairobi-specific venue/restaurant/nightlife knowledge below
   // is what makes the concierge feel "local" — for a client in a
@@ -95,8 +95,8 @@ Formatting rules:
 - End responses with a helpful follow-up question when natural`,
 
   // ── Meta / SEO ──────────────────────────────────────────────────
-  metaTitle: "Shikaz Homes — Nairobi Short Stays",
-  metaDescription: "Luxury short-stay apartments in Nairobi's finest neighbourhoods. Westlands, Kilimani, Karen and more.",
+  metaTitle: "Bridge Homes — Premium Short Stays",
+  metaDescription: "Premium short-stay apartments, thoughtfully curated. Book direct and pay via M-Pesa.",
 
   // ── Emergency (SOS button) ──────────────────────────────────────
   // These always display in the SOS panel regardless of GPS/API
