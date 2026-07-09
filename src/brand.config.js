@@ -39,23 +39,23 @@ export const BRAND = {
   // Lowercase, no spaces. Used as the Supabase kv_store key prefix,
   // so changing this on an EXISTING deployment will orphan old data.
   // Fine to set freely on a fresh client deployment.
-  slug: "marknexxhomes",
+  slug: "ShikazHomes",
   // Booking reference prefix, e.g. "SHK-A1B2C3"
-  refPrefix: "BRH",
+  refPrefix: "SH",
   // Used in .ics UID domain and PRODID — cosmetic, no spaces.
-  icsDomain: "marknexxhomes",
+  icsDomain: "shikazhomes",
 
   // ── Default contact info ────────────────────────────────────────
   // These are just the starting values — the host can overwrite all
   // of them from the Host Portal → Site Content admin panel without
   // touching code. Set placeholders here for a fresh client.
-  whatsapp: "25470000000",
-  whatsappDisplay: "+254 700 000 000",
-  email: "hello@bridgehomes.co.ke",
-  phone: "+254 700 000 000",
+  whatsapp: "254721791414",
+  whatsappDisplay: "+254 721 791 414",
+  email: "ireneonsarigo@gmail.com",
+  phone: "+254 721 791 414",
 
   // ── AI Concierge ─────────────────────────────────────────────
-  conciergeName: "Mark",
+  conciergeName: "Shikaz",
   // Full system prompt for the Groq-powered concierge chat widget.
   // The Nairobi-specific venue/restaurant/nightlife knowledge below
   // is what makes the concierge feel "local" — for a client in a
