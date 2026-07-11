@@ -14,7 +14,7 @@
 //    endpoint — process.env.URL is provided automatically by Netlify.)
 
 import { createClient } from "@supabase/supabase-js";
-import { BRAND } from "../src/brand.config.js";
+import { BRAND } from "./brand.config.js";
 
 const toKey = (d) => d.toISOString().slice(0, 10);
 

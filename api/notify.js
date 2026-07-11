@@ -6,7 +6,7 @@
 // Optional: SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY (to load subscribers)
 
 import { createClient } from "@supabase/supabase-js";
-import { BRAND } from "../src/brand.config.js";
+import { BRAND } from "./brand.config.js";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",

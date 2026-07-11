@@ -6,7 +6,7 @@
 // The client calls this after the user grants notification permission.
 
 import { createClient } from "@supabase/supabase-js";
-import { BRAND } from "../src/brand.config.js";
+import { BRAND } from "./brand.config.js";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",

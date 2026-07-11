@@ -15,7 +15,7 @@
 // anything new and risks rate limiting.
 
 import { createClient } from "@supabase/supabase-js";
-import { BRAND } from "../src/brand.config.js";
+import { BRAND } from "./brand.config.js";
 
 function parseICS(text) {
   const events = [];
