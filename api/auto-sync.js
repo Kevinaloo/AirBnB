@@ -15,7 +15,6 @@
 // anything new and risks rate limiting.
 
 import { createClient } from "@supabase/supabase-js";
-import webpush from "web-push";
 import { BRAND } from "../src/brand.config.js";
 
 function parseICS(text) {
@@ -169,14 +168,8 @@ export default async () => {
   // and on which platform it happened. We push one clear notification per
   // change bucket, and also mirror it via WhatsApp if configured.
   if (alerts.length) {
-    const vapidPub = process.env.VAPID_PUBLIC_KEY;
-    const vapidPriv = process.env.VAPID_PRIVATE_KEY;
-    const vapidSub = process.env.VAPID_SUBJECT || "mailto:admin@shikazhomes.com";
-    let adminSubs = [];
-    if (vapidPub && vapidPriv) {
-      webpush.setVapidDetails(vapidSub, vapidPub, vapidPriv);
-      adminSubs = await getKV(`${BRAND.slug}:push:admin`, []);
-    }
+    const siteUrl = process.env.SITE_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "");
 
     const fmtDates = (arr) => {
       if (arr.length <= 3) return arr.join(", ");
@@ -190,15 +183,13 @@ export default async () => {
       const title = `📅 ${a.platform}: ${a.listing}`;
       const message = parts.join("  •  ");
 
-      // Web push to admin devices
-      if (adminSubs.length) {
-        const payload = JSON.stringify({
-          title, body: message, url: "/?admin=1",
-          tag: `sync-${a.listing}`, requireInteraction: true,
-        });
-        await Promise.allSettled(
-          adminSubs.map((sub) => webpush.sendNotification(sub, payload).catch(() => {}))
-        );
+      // Delegate to our own /api/notify endpoint (handles VAPID + subscriber lookup)
+      if (siteUrl) {
+        fetch(`${siteUrl}/api/notify`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ role: "admin", title, message, url: "/?admin=1", tag: `sync-${a.listing}` }),
+        }).catch(() => {});
       }
     }
   }
