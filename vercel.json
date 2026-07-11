@@ -5,7 +5,7 @@
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "crons": [
-    { "path": "/api/auto-sync", "schedule": "0 */6 * * *" },
+    { "path": "/api/auto-sync", "schedule": "0 6 * * *" },
     { "path": "/api/reservation-reminder", "schedule": "0 7 * * *" }
   ]
 }
