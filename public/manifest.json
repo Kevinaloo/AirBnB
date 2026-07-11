@@ -1,18 +1,17 @@
 {
-  "name": "Bridge Homes",
-  "short_name": "Bridge",
-  "description": "Premium short-stay apartments. Book direct, pay via M-Pesa.",
-  "start_url": "/",
+  "name": "Shikaz Homez",
+  "short_name": "Shikaz",
+  "description": "Premium short-stay apartments in Nairobi. Book direct, pay via M-Pesa.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#FFFFFF",
   "theme_color": "#FF6B6B",
   "orientation": "portrait-primary",
+  "categories": ["travel", "lifestyle"],
   "icons": [
-    {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }

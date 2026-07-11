@@ -3398,12 +3398,40 @@ const DEFAULT_SITE_CONTENT = {
   statRating: "4.95",
 };
 
+// Any brand names a previous deployment may have baked into editable content.
+// Kept here so a rename cleanly propagates through host-edited site copy.
+const STALE_BRAND_NAMES = ["MARKNEXX Homes","MARKNEXX","Marknexx","marknexx","Bridge Homes","Bridge"];
+function scrubBrand(value) {
+  if (typeof value === "string") {
+    let out = value;
+    for (const stale of STALE_BRAND_NAMES) out = out.split(stale).join(BRAND.fullName);
+    // Correct the earlier contact-email typo if it was saved into content.
+    out = out.split("ireneonsarigo@gmail.com").join("ireneonsarigo85@gmail.com");
+    return out;
+  }
+  if (Array.isArray(value)) return value.map(scrubBrand);
+  if (value && typeof value === "object") {
+    const o = {};
+    for (const k of Object.keys(value)) o[k] = scrubBrand(value[k]);
+    return o;
+  }
+  return value;
+}
+
 async function loadSiteContent() {
   try {
     const { data, error } = await supabase
       .from("kv_store").select("value").eq("key",`${BRAND.slug}:site_content`).single();
     if (error || !data) return DEFAULT_SITE_CONTENT;
-    return { ...DEFAULT_SITE_CONTENT, ...JSON.parse(data.value) };
+    const stored = JSON.parse(data.value);
+    const cleaned = scrubBrand(stored);
+    // If scrubbing changed anything, persist the correction once so it sticks.
+    if (JSON.stringify(cleaned) !== JSON.stringify(stored)) {
+      supabase.from("kv_store").upsert(
+        { key:`${BRAND.slug}:site_content`, value:JSON.stringify(cleaned) }, { onConflict:"key" }
+      ).then(()=>{}, ()=>{});
+    }
+    return { ...DEFAULT_SITE_CONTENT, ...cleaned };
   } catch { return DEFAULT_SITE_CONTENT; }
 }
 
@@ -3696,6 +3724,61 @@ function SiteContentManager({ siteContent, onSave }) {
 // Add VITE_GROQ_API_KEY to Netlify env vars for the fallback to work.
 const GROQ_MODEL   = "llama-3.3-70b-versatile";
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY ?? "";
+
+// ── Web Push notifications ────────────────────────────────────────
+// VAPID public key — set VITE_VAPID_PUBLIC_KEY in Vercel (same value as the
+// server's VAPID_PUBLIC_KEY). Without it, the app still works; push is just
+// silently disabled.
+const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY ?? "";
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = atob(base64);
+  const out = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+  return out;
+}
+
+// Ask permission + subscribe this browser to push, tagged as admin or guest.
+// Returns true on success. Safe to call repeatedly (idempotent server-side).
+async function enablePushNotifications(role = "guest") {
+  try {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return false;
+    if (!VAPID_PUBLIC_KEY) { console.warn("[push] VITE_VAPID_PUBLIC_KEY not set"); return false; }
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") return false;
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+    }
+    const res = await fetch("/api/push-subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscription: sub, role }),
+    });
+    return res.ok;
+  } catch (e) {
+    console.warn("[push] enable failed:", e);
+    return false;
+  }
+}
+
+// Fire a server-side push to a bucket. Fire-and-forget; never blocks UI.
+function sendPushNotification({ role = "admin", title, message, url, tag }) {
+  try {
+    fetch("/api/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role, title, message, url, tag }),
+    }).catch(() => {});
+  } catch {}
+}
+
 
 
 
@@ -7822,6 +7905,19 @@ function ICalListingRow({ listing, bookings, syncConfigs, onImport, onExport, on
       {/* Expanded detail */}
       {expanded&&(
         <div style={{borderTop:`1px solid ${C.border}`,padding:"1.2rem 1.4rem",animation:"fadeIn 0.25s ease",background:"#FDFAF5"}}>
+          {/* Live export feed URL — this is what OTAs subscribe to for 2-way sync */}
+          <div style={{marginBottom:"1.2rem"}}>
+            <div style={{fontSize:"0.62rem",letterSpacing:"0.18em",textTransform:"uppercase",color:C.muted,marginBottom:"0.5rem"}}>Export — Live Calendar Link</div>
+            <div style={{fontSize:"0.72rem",color:C.muted,lineHeight:1.55,marginBottom:"0.6rem"}}>
+              Paste this link into Airbnb / Booking.com / VRBO under “Import calendar”. It updates automatically — any date booked or blocked here closes on every connected platform within a few hours. This is the export half of two-way sync.
+            </div>
+            <div style={{display:"flex",gap:"0.5rem",alignItems:"stretch"}}>
+              <input readOnly value={`${window.location.origin}/api/calendar?listing=${listing.id}`} onFocus={e=>e.target.select()}
+                style={{flex:1,background:C.ink,border:`1px solid ${C.border}`,borderRadius:"6px",padding:"0.6rem 0.8rem",color:C.cream,fontSize:"0.72rem",fontFamily:"monospace",outline:"none",overflow:"hidden",textOverflow:"ellipsis"}}/>
+              <button onClick={()=>{const u=`${window.location.origin}/api/calendar?listing=${listing.id}`;navigator.clipboard?.writeText(u);}} style={{padding:"0.6rem 1rem",background:C.gold,color:C.obsidian,border:"none",borderRadius:"6px",fontWeight:700,fontSize:"0.72rem",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}} onMouseEnter={e=>e.target.style.background=C.goldLight} onMouseLeave={e=>e.target.style.background=C.gold}>Copy link</button>
+            </div>
+          </div>
+
           {/* Connected feeds */}
           {configs.length>0&&(
             <div style={{marginBottom:"1.2rem"}}>
@@ -8085,6 +8181,19 @@ function ICalSyncManager({ listings, bookings, onListingUpdate }) {
 function AdminDashboard({ listings, bookings, onNavigate, onListingUpdate, onListingCreate, onListingDelete, promoConfig, onPromoSave, siteContent, onSiteContentSave, referrals, commissionSettings, onCommissionSave, onReferralsUpdate, hostProfile, onHostProfileSaved }) {
   const [tab,setTab]=useState("dashboard");
   const [sideOpen,setSideOpen]=useState(true);
+  const [pushOn,setPushOn]=useState(typeof Notification!=="undefined" && Notification.permission==="granted");
+
+  // Register this device for admin push alerts (new bookings + cross-platform
+  // calendar changes). Prompts once; the host can also toggle it below.
+  useEffect(()=>{
+    if(typeof Notification!=="undefined" && Notification.permission==="granted"){
+      enablePushNotifications("admin").then(ok=>{ if(ok) setPushOn(true); });
+    }
+  },[]);
+  const handleEnablePush=async()=>{
+    const ok=await enablePushNotifications("admin");
+    setPushOn(ok);
+  };
 
   const tabs=[
     {id:"dashboard",icon:"▦",label:"Dashboard"},
@@ -8119,6 +8228,13 @@ function AdminDashboard({ listings, bookings, onNavigate, onListingUpdate, onLis
             </button>
           ))}
         </nav>
+        {/* Bottom: notification toggle + back to site */}
+        <div style={{padding:"0.8rem 0.8rem 0"}}>
+          <button onClick={handleEnablePush} style={{width:"100%",display:"flex",alignItems:"center",gap:"0.7rem",padding:"0.7rem 1rem",background:pushOn?"rgba(22,163,74,0.12)":"none",border:`1px solid ${pushOn?"rgba(22,163,74,0.4)":"rgba(247,242,234,0.2)"}`,borderRadius:"5px",color:pushOn?C.success:"rgba(247,242,234,0.6)",cursor:"pointer",transition:"all 0.2s",minWidth:"214px",whiteSpace:"nowrap",fontSize:"0.8rem",fontWeight:500}} onMouseEnter={e=>{if(!pushOn){e.currentTarget.style.borderColor=C.gold;e.currentTarget.style.color=C.gold;}}} onMouseLeave={e=>{if(!pushOn){e.currentTarget.style.borderColor="rgba(247,242,234,0.2)";e.currentTarget.style.color=C.muted;}}}>
+            <span style={{flexShrink:0}}>{pushOn?"🔔":"🔕"}</span>
+            {sideOpen&&<span>{pushOn?"Alerts on — booking & sync":"Enable booking alerts"}</span>}
+          </button>
+        </div>
         {/* Bottom: back to site */}
         <div style={{padding:"0.8rem",borderTop:`1px solid ${C.border}`}}>
           <button onClick={()=>onNavigate("home")} style={{width:"100%",display:"flex",alignItems:"center",gap:"0.8rem",padding:"0.7rem 1rem",background:"none",border:"1px solid rgba(247,242,234,0.2)",borderRadius:"5px",color:"rgba(247,242,234,0.6)",cursor:"pointer",transition:"all 0.2s",minWidth:"214px",whiteSpace:"nowrap"}} onMouseEnter={e=>{e.currentTarget.style.borderColor=C.gold;e.currentTarget.style.color=C.gold;}} onMouseLeave={e=>{e.currentTarget.style.borderColor=C.border;e.currentTarget.style.color=C.muted;}}>
@@ -8649,6 +8765,14 @@ export default function App() {
     if (siteContent?.whatsapp) {
       sendWhatsApp({ to: siteContent.whatsapp, message: buildHostNewBookingMessage(booking, booking.listing) });
     }
+    // Push notification to the admin/host device(s) — instant new-booking alert.
+    sendPushNotification({
+      role: "admin",
+      title: "🎉 New booking on your site",
+      message: `${booking.name || "A guest"} booked ${booking.listing?.name || "a listing"} — ${booking.checkIn} → ${booking.checkOut} · KES ${fmt(booking.total)}`,
+      url: "/?admin=1",
+      tag: "new-booking",
+    });
   };
 
   if(loading) return (

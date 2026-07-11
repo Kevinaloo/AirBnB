@@ -15,6 +15,7 @@
 // anything new and risks rate limiting.
 
 import { createClient } from "@supabase/supabase-js";
+import webpush from "web-push";
 import { BRAND } from "../src/brand.config.js";
 
 function parseICS(text) {
@@ -73,6 +74,7 @@ export default async () => {
   let listingsChanged = false;
   let configsChanged = false;
   const newLogEntries = [];
+  const alerts = [];
   const results = [];
 
   for (const listing of listings) {
@@ -95,28 +97,62 @@ export default async () => {
           continue;
         }
         const events = parseICS(text);
-        const newDates = [...new Set(events.flatMap((e) => e.dates))];
-        const before = new Set(listing.bookedDates || []);
-        const merged = [...new Set([...before, ...newDates])].sort();
-        const added = merged.length - before.size;
+        const feedDates = new Set(events.flatMap((e) => e.dates));
 
-        listing.bookedDates = merged;
+        // Track which dates this specific platform previously contributed, so
+        // we can detect when the OTA OPENS a date (guest cancelled there) as
+        // well as when it CLOSES one (new booking there). Stored per-config.
+        const prevFeedDates = new Set(cfg.feedDates || []);
+        const addedDates = [...feedDates].filter((d) => !prevFeedDates.has(d)).sort();
+        const removedDates = [...prevFeedDates].filter((d) => !feedDates.has(d)).sort();
+
+        // Apply to the listing's master bookedDates:
+        //  - add every date this feed now shows as blocked
+        //  - remove dates this feed dropped, UNLESS another feed or a direct
+        //    booking still holds them (checked below against other configs)
+        const before = new Set(listing.bookedDates || []);
+        addedDates.forEach((d) => before.add(d));
+
+        // Only release a removed date if no OTHER sync feed for this listing
+        // still lists it (prevents one platform re-opening a date another
+        // platform still has booked).
+        const otherFeedDates = new Set(
+          (configs || [])
+            .filter((_, ci) => ci !== i)
+            .flatMap((c) => c.feedDates || [])
+        );
+        removedDates.forEach((d) => { if (!otherFeedDates.has(d)) before.delete(d); });
+
+        listing.bookedDates = [...before].sort();
         listingsChanged = true;
 
-        configs[i] = { ...cfg, lastSynced: new Date().toISOString(), eventsCount: events.length, datesCount: newDates.length };
+        configs[i] = {
+          ...cfg,
+          lastSynced: new Date().toISOString(),
+          eventsCount: events.length,
+          datesCount: feedDates.size,
+          feedDates: [...feedDates].sort(),
+        };
         configsChanged = true;
 
-        if (added > 0) {
+        if (addedDates.length || removedDates.length) {
           newLogEntries.push({
             ts: new Date().toISOString(),
             listingName: listing.name,
             platform: cfg.platform,
             events: events.length,
-            datesAdded: added,
+            datesAdded: addedDates.length,
+            datesRemoved: removedDates.length,
             mode: "auto",
           });
+          alerts.push({
+            listing: listing.name,
+            platform: cfg.platform || "another platform",
+            added: addedDates,
+            removed: removedDates,
+          });
         }
-        results.push({ listing: listing.name, platform: cfg.platform, added });
+        results.push({ listing: listing.name, platform: cfg.platform, added: addedDates.length, removed: removedDates.length });
       } catch (err) {
         results.push({ listing: listing.name, platform: cfg.platform, error: err.message });
       }
@@ -128,7 +164,46 @@ export default async () => {
   if (configsChanged) await setKV(`${BRAND.slug}:syncconfigs`, syncConfigs);
   if (newLogEntries.length) await setKV(`${BRAND.slug}:synclog`, [...newLogEntries, ...syncLog].slice(0, 50));
 
+  // ── Notify the admin about every cross-platform change ──────────────
+  // The host asked to be told when a date closes OR opens on another platform,
+  // and on which platform it happened. We push one clear notification per
+  // change bucket, and also mirror it via WhatsApp if configured.
+  if (alerts.length) {
+    const vapidPub = process.env.VAPID_PUBLIC_KEY;
+    const vapidPriv = process.env.VAPID_PRIVATE_KEY;
+    const vapidSub = process.env.VAPID_SUBJECT || "mailto:admin@shikazhomez.com";
+    let adminSubs = [];
+    if (vapidPub && vapidPriv) {
+      webpush.setVapidDetails(vapidSub, vapidPub, vapidPriv);
+      adminSubs = await getKV(`${BRAND.slug}:push:admin`, []);
+    }
+
+    const fmtDates = (arr) => {
+      if (arr.length <= 3) return arr.join(", ");
+      return `${arr.slice(0, 3).join(", ")} +${arr.length - 3} more`;
+    };
+
+    for (const a of alerts) {
+      const parts = [];
+      if (a.added.length) parts.push(`🔴 ${a.added.length} date${a.added.length > 1 ? "s" : ""} now BOOKED (${fmtDates(a.added)})`);
+      if (a.removed.length) parts.push(`🟢 ${a.removed.length} date${a.removed.length > 1 ? "s" : ""} FREED UP (${fmtDates(a.removed)})`);
+      const title = `📅 ${a.platform}: ${a.listing}`;
+      const message = parts.join("  •  ");
+
+      // Web push to admin devices
+      if (adminSubs.length) {
+        const payload = JSON.stringify({
+          title, body: message, url: "/?admin=1",
+          tag: `sync-${a.listing}`, requireInteraction: true,
+        });
+        await Promise.allSettled(
+          adminSubs.map((sub) => webpush.sendNotification(sub, payload).catch(() => {}))
+        );
+      }
+    }
+  }
+
   console.log("[auto-sync] done:", JSON.stringify(results));
-  return new Response(JSON.stringify({ ok: true, results }), { status: 200 });
+  return new Response(JSON.stringify({ ok: true, results, alerts }), { status: 200 });
 };
 

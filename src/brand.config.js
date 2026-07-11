@@ -51,7 +51,7 @@ export const BRAND = {
   // touching code. Set placeholders here for a fresh client.
   whatsapp: "254721791414",
   whatsappDisplay: "+254 721 791 414",
-  email: "ireneonsarigo@gmail.com",
+  email: "ireneonsarigo85@gmail.com",
   phone: "+254 721 791 414",
 
   // ── AI Concierge ─────────────────────────────────────────────
