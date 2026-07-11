@@ -6690,8 +6690,91 @@ function buildDraft(scraped, groqResult, pageUrl) {
   };
 }
 
+
+// ── AI "Paste details" import — the always-works path ─────────────────
+// Airbnb & Booking.com block server-side scraping (403 from any datacenter
+// IP, Vercel included). Rather than leave the host stuck, this takes whatever
+// they paste — the full listing text copied from the OTA page, a rough
+// description, or just a few lines — plus any photo URLs, and asks Groq to
+// structure it into a complete listing draft. No scraping, no blocks.
+async function structureFromText(rawText, photoUrls, pageUrl) {
+  const prompt = `You are a property listing data extractor for ${BRAND.fullName}, a premium short-stay company in ${BRAND.city}, ${BRAND.country}.
+
+The host pasted the following raw listing information (copied from an Airbnb/Booking.com page or written by hand). Extract and structure it into a clean listing.
+
+RAW INPUT:
+"""
+${(rawText || "").slice(0, 6000)}
+"""
+${pageUrl ? `Source URL: ${pageUrl}` : ""}
+
+Return ONLY a JSON object (no markdown, no commentary) with exactly these keys:
+{
+  "name": "clean listing title (max 60 chars)",
+  "tagline": "catchy subtitle under 65 chars",
+  "neighborhood": "specific neighbourhood, or '' if unknown",
+  "city": "city name (default '${BRAND.city}')",
+  "type": one of ["Studio","1-Bedroom Suite","2-Bedroom Apartment","3-Bedroom Villa","Penthouse Suite","Loft Studio","Cottage","Townhouse","Entire Home","Other"],
+  "bedrooms": integer (default 1),
+  "bathrooms": integer (default 1),
+  "guests": integer max guests (default 2),
+  "sqm": integer square metres or null,
+  "pricePerNight": integer nightly price in KES. If a price in another currency is given, convert to KES (USD*129, GBP*163, EUR*140). Default 5000 if none found,
+  "cleaningFee": integer cleaning fee in KES (estimate ~15% of nightly if not stated),
+  "description": "2-3 paragraph polished description written for ${BRAND.fullName}",
+  "amenities": ["array","of","amenities found or reasonably implied"],
+  "houseRules": ["No smoking","Check-in 2PM","Checkout 11AM"],
+  "badge": one of ["New","Guest Favourite","Popular","Business Pick","Design Pick","Luxury"]
+}`;
+
+  const text = await callGroqRaw([{ role: "user", content: prompt }], null, {
+    maxTokens: 1200,
+    temperature: 0.35,
+  });
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error("AI could not structure that text. Try adding a bit more detail.");
+  const g = JSON.parse(match[0]);
+
+  // Clean + validate photo URLs the host pasted (one per line or comma-sep)
+  const photos = (photoUrls || "")
+    .split(/[\s,]+/)
+    .map((s) => s.trim())
+    .filter((s) => /^https?:\/\//i.test(s))
+    .slice(0, 12);
+
+  return {
+    ...BLANK_LISTING(),
+    name: g.name || "Untitled listing",
+    tagline: g.tagline || "",
+    neighborhood: g.neighborhood || "",
+    city: g.city || BRAND.city,
+    type: g.type || "Studio",
+    bedrooms: Number(g.bedrooms) || 1,
+    bathrooms: Number(g.bathrooms) || 1,
+    guests: Number(g.guests) || 2,
+    sqm: g.sqm ? Number(g.sqm) : 50,
+    pricePerNight: Number(g.pricePerNight) || 5000,
+    cleaningFee: Number(g.cleaningFee) || Math.round((Number(g.pricePerNight) || 5000) * 0.15),
+    rating: 5.0,
+    reviewCount: 0,
+    badge: g.badge || "New",
+    description: g.description || rawText?.slice(0, 500) || "",
+    amenities: Array.isArray(g.amenities) && g.amenities.length ? g.amenities : ["WiFi"],
+    houseRules: Array.isArray(g.houseRules) && g.houseRules.length ? g.houseRules : ["No smoking", "Check-in 2PM", "Checkout 11AM"],
+    photos: photos.length ? photos : [BLANK_LISTING().photos[0]],
+    lat: null,
+    lng: null,
+    locationNote: "",
+    available: false,
+  };
+}
+
+
 function ImportListingFromUrl({ onImport, onCancel }) {
+  const [tab, setTab] = useState("url");      // "url" | "paste"
   const [url, setUrl] = useState("");
+  const [pasteText, setPasteText] = useState("");
+  const [pastePhotos, setPastePhotos] = useState("");
   const [status, setStatus] = useState("idle"); // idle | fetching | parsing | review | error
   const [statusMsg, setStatusMsg] = useState("");
   const [errMsg, setErrMsg] = useState("");
@@ -6702,6 +6785,9 @@ function ImportListingFromUrl({ onImport, onCancel }) {
   const [editDraft, setEditDraft] = useState(null);
   const setEdit = (k,v) => setEditDraft(d=>({...d,[k]:v}));
 
+  const goToReview = (d) => { setDraft(d); setEditDraft(d); setPhotoIdx(0); setStatus("review"); };
+
+  // ── URL import (works for own-sites & many OTAs; escalates or falls back) ──
   const handleImport = async () => {
     const u = url.trim();
     if (!u) { setErrMsg("Please enter a URL."); return; }
@@ -6709,22 +6795,48 @@ function ImportListingFromUrl({ onImport, onCancel }) {
     setErrMsg("");
     try {
       setStatus("fetching"); setStatusMsg("Fetching page…");
-      const html = await fetchPageHtml(u);
-      if (!html || html.length < 200) throw new Error("Could not fetch the page. Make sure the URL is public and try again.");
+      const res = await fetch("/api/listing-fetch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: u }),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      // Site blocked automated import (Airbnb/Booking from a server IP) →
+      // switch to the always-works Paste mode and pre-fill the URL as source.
+      if (data.blocked || (!res.ok && !data.html)) {
+        setTab("paste");
+        setStatus("idle");
+        setErrMsg(data.error || "That site blocked automated import. Paste the listing details below instead — it takes 20 seconds and always works.");
+        return;
+      }
+      if (!res.ok) throw new Error(data?.error || `Could not fetch that page (${res.status}).`);
+
+      const html = data.html || "";
+      if (!html || html.length < 200) throw new Error("Could not read that page. Try the Paste details tab instead.");
 
       setStatus("parsing"); setStatusMsg("Extracting listing data…");
       const scraped = scrapeHtml(html, u);
-
       setStatusMsg("Refining with AI…");
       const groqResult = await refineWithGroq(scraped, u);
-
-      const d = buildDraft(scraped, groqResult, u);
-      setDraft(d);
-      setEditDraft(d);
-      setPhotoIdx(0);
-      setStatus("review");
+      goToReview(buildDraft(scraped, groqResult, u));
     } catch(e) {
-      setErrMsg(e.message || "Import failed. Please try again.");
+      setErrMsg(e.message || "Import failed. Try the Paste details tab.");
+      setStatus("error");
+    }
+  };
+
+  // ── AI Paste import (the always-works path — no scraping) ──
+  const handlePaste = async () => {
+    const t = pasteText.trim();
+    if (t.length < 20) { setErrMsg("Paste at least a sentence or two about the property (or the copied listing text)."); return; }
+    setErrMsg("");
+    try {
+      setStatus("parsing"); setStatusMsg("Building your listing with AI…");
+      const d = await structureFromText(t, pastePhotos, url.trim());
+      goToReview(d);
+    } catch(e) {
+      setErrMsg(e.message || "Could not build the listing. Add a little more detail and try again.");
       setStatus("error");
     }
   };
@@ -6739,20 +6851,34 @@ function ImportListingFromUrl({ onImport, onCancel }) {
     borderRadius:"6px", padding:"0.85rem 1rem", color:"#1C1C1C",
     fontSize:"0.88rem", outline:"none", transition:"border-color 0.2s",
   };
+  const tabBtn = (active) => ({
+    flex:1, padding:"0.7rem 1rem", background: active?C.gold:"transparent",
+    color: active?C.obsidian:C.muted, border:`1px solid ${active?C.gold:C.border}`,
+    borderRadius:"7px", fontWeight:700, fontSize:"0.8rem", cursor:"pointer",
+    transition:"all 0.2s",
+  });
 
   return (
     <div style={{animation:"fadeIn 0.3s ease"}}>
       {/* Header */}
-      <div style={{marginBottom:"2rem"}}>
+      <div style={{marginBottom:"1.5rem"}}>
         <button onClick={onCancel} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:"0.78rem",letterSpacing:"0.12em",textTransform:"uppercase",padding:0,marginBottom:"0.5rem"}} onMouseEnter={e=>e.target.style.color=C.gold} onMouseLeave={e=>e.target.style.color=C.muted}>← Back to Listings</button>
-        <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.7rem",color:C.cream,fontWeight:400}}>Import <em style={{color:C.gold}}>from URL</em></h2>
+        <h2 style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"1.7rem",color:C.cream,fontWeight:400}}>Import <em style={{color:C.gold}}>a listing</em></h2>
         <p style={{fontSize:"0.84rem",color:C.muted,marginTop:"0.4rem",lineHeight:1.6}}>
-          Paste any property URL — Airbnb, Booking.com, VRBO, or your own site. Photos, description, and details are extracted automatically, then refined with AI where available.
+          Import from a URL when the site allows it, or paste the details and let AI build the listing — the paste method always works, even for Airbnb & Booking.com.
         </p>
       </div>
 
-      {/* URL input — shown in idle/error/review (so user can re-import) */}
-      {status !== "fetching" && status !== "parsing" && (
+      {/* Mode tabs — hidden while loading / in review */}
+      {status !== "fetching" && status !== "parsing" && status !== "review" && (
+        <div style={{display:"flex",gap:"0.6rem",marginBottom:"1.2rem"}}>
+          <button style={tabBtn(tab==="url")}  onClick={()=>{setTab("url");setErrMsg("");}}>🔗 Import from URL</button>
+          <button style={tabBtn(tab==="paste")} onClick={()=>{setTab("paste");setErrMsg("");}}>📋 Paste details (always works)</button>
+        </div>
+      )}
+
+      {/* ── URL TAB ── */}
+      {tab==="url" && status !== "fetching" && status !== "parsing" && status !== "review" && (
         <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"10px",padding:"1.6rem 2rem",marginBottom:"1.5rem",boxShadow:"0 2px 12px rgba(14,43,31,0.06)"}}>
           <div style={{fontSize:"0.62rem",letterSpacing:"0.2em",textTransform:"uppercase",color:C.muted,marginBottom:"0.5rem"}}>Property URL</div>
           <div style={{display:"flex",gap:"0.6rem"}}>
@@ -6764,16 +6890,40 @@ function ImportListingFromUrl({ onImport, onCancel }) {
               onKeyDown={e=>e.key==="Enter"&&handleImport()}/>
             <button onClick={handleImport} style={{padding:"0.85rem 1.5rem",background:C.gold,color:C.obsidian,border:"none",borderRadius:"6px",fontWeight:700,fontSize:"0.83rem",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap",transition:"background 0.2s"}} onMouseEnter={e=>e.target.style.background=C.goldLight} onMouseLeave={e=>e.target.style.background=C.gold}>🪄 Import</button>
           </div>
-          {errMsg && <div style={{marginTop:"0.6rem",padding:"0.5rem 0.8rem",background:"rgba(220,38,38,0.07)",border:"1px solid rgba(220,38,38,0.2)",borderRadius:"5px",fontSize:"0.78rem",color:C.error}}>{errMsg}</div>}
-          {status==="idle"&&(
-            <div style={{marginTop:"1rem",display:"flex",flexWrap:"wrap",gap:"0.4rem"}}>
-              {["airbnb.com","booking.com","vrbo.com","tripadvisor.com","+ any site"].map(s=>(
-                <span key={s} style={{padding:"0.25rem 0.7rem",background:"#F7F2EA",border:`1px solid ${C.border}`,borderRadius:"20px",fontSize:"0.7rem",color:C.muted}}>✓ {s}</span>
-              ))}
-            </div>
-          )}
+          {errMsg && <div style={{marginTop:"0.6rem",padding:"0.6rem 0.9rem",background:"rgba(220,38,38,0.07)",border:"1px solid rgba(220,38,38,0.2)",borderRadius:"5px",fontSize:"0.78rem",color:C.error,lineHeight:1.5}}>{errMsg}</div>}
+          <div style={{marginTop:"0.9rem",fontSize:"0.74rem",color:C.muted,lineHeight:1.6}}>
+            Works instantly for your own website and many listing sites. Airbnb & Booking.com block server imports — if that happens we'll switch you to Paste mode automatically.
+          </div>
         </div>
       )}
+
+      {/* ── PASTE TAB ── */}
+      {tab==="paste" && status !== "fetching" && status !== "parsing" && status !== "review" && (
+        <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"10px",padding:"1.6rem 2rem",marginBottom:"1.5rem",boxShadow:"0 2px 12px rgba(14,43,31,0.06)"}}>
+          <div style={{fontSize:"0.62rem",letterSpacing:"0.2em",textTransform:"uppercase",color:C.muted,marginBottom:"0.5rem"}}>Listing details</div>
+          <div style={{fontSize:"0.78rem",color:C.muted,lineHeight:1.6,marginBottom:"0.8rem"}}>
+            Open the Airbnb / Booking.com page in your browser, select the description &amp; details, copy, and paste here. Or just describe the place in your own words — AI fills in the rest.
+          </div>
+          <textarea value={pasteText} onChange={e=>{setPasteText(e.target.value);setErrMsg("");}} rows={7}
+            placeholder={"e.g. Spacious 2-bedroom apartment in Kilimani, sleeps 4, fully furnished with WiFi, Netflix, secure parking, backup generator. KES 7,500 per night. Walking distance to Yaya Centre..."}
+            style={{...inp,resize:"vertical",lineHeight:1.6,fontFamily:"inherit"}}
+            onFocus={e=>e.target.style.borderColor=C.gold} onBlur={e=>e.target.style.borderColor=C.border}/>
+
+          <div style={{fontSize:"0.62rem",letterSpacing:"0.2em",textTransform:"uppercase",color:C.muted,margin:"1.1rem 0 0.4rem"}}>Photo links <span style={{textTransform:"none",letterSpacing:0,color:C.mutedLight}}>— optional, one per line</span></div>
+          <textarea value={pastePhotos} onChange={e=>setPastePhotos(e.target.value)} rows={3}
+            placeholder={"https://…/photo1.jpg\nhttps://…/photo2.jpg"}
+            style={{...inp,resize:"vertical",lineHeight:1.5,fontFamily:"monospace",fontSize:"0.78rem"}}
+            onFocus={e=>e.target.style.borderColor=C.gold} onBlur={e=>e.target.style.borderColor=C.border}/>
+          <div style={{marginTop:"0.4rem",fontSize:"0.72rem",color:C.mutedLight,lineHeight:1.5}}>
+            Tip: on the listing page, right-click a photo → “Copy image address”. No links? Add photos from your device after saving.
+          </div>
+
+          {errMsg && <div style={{marginTop:"0.8rem",padding:"0.6rem 0.9rem",background:"rgba(220,38,38,0.07)",border:"1px solid rgba(220,38,38,0.2)",borderRadius:"5px",fontSize:"0.78rem",color:C.error,lineHeight:1.5}}>{errMsg}</div>}
+
+          <button onClick={handlePaste} style={{marginTop:"1.1rem",width:"100%",padding:"0.9rem 1.5rem",background:C.gold,color:C.obsidian,border:"none",borderRadius:"7px",fontWeight:700,fontSize:"0.86rem",cursor:"pointer",transition:"background 0.2s"}} onMouseEnter={e=>e.target.style.background=C.goldLight} onMouseLeave={e=>e.target.style.background=C.gold}>🪄 Build listing with AI</button>
+        </div>
+      )}
+
 
       {/* Loading */}
       {isLoading && (

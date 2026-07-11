@@ -14,7 +14,7 @@
 //    endpoint — process.env.URL is provided automatically by Netlify.)
 
 import { createClient } from "@supabase/supabase-js";
-import { BRAND } from "../../src/brand.config.js";
+import { BRAND } from "../src/brand.config.js";
 
 const toKey = (d) => d.toISOString().slice(0, 10);
 
@@ -35,7 +35,7 @@ async function sendWhatsApp(siteUrl, to, message) {
 export default async () => {
   const supabaseUrl = process.env.SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const siteUrl = process.env.URL || process.env.DEPLOY_PRIME_URL;
+  const siteUrl = process.env.SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : process.env.URL);
   if (!supabaseUrl || !serviceKey || !siteUrl) {
     console.error("[reminders] Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY / site URL");
     return new Response(JSON.stringify({ error: "Not configured" }), { status: 500 });
@@ -98,6 +98,3 @@ export default async () => {
   return new Response(JSON.stringify({ ok: true, sent }), { status: 200 });
 };
 
-export const config = {
-  schedule: "0 7 * * *", // daily at 07:00 UTC — adjust for your timezone
-};

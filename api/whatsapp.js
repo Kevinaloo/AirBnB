@@ -112,4 +112,3 @@ export default async (req) => {
   }
 };
 
-export const config = { path: "/api/whatsapp" };

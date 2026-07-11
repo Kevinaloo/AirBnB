@@ -15,7 +15,7 @@
 // anything new and risks rate limiting.
 
 import { createClient } from "@supabase/supabase-js";
-import { BRAND } from "../../src/brand.config.js";
+import { BRAND } from "../src/brand.config.js";
 
 function parseICS(text) {
   const events = [];
@@ -132,6 +132,3 @@ export default async () => {
   return new Response(JSON.stringify({ ok: true, results }), { status: 200 });
 };
 
-export const config = {
-  schedule: "0 */6 * * *", // every 6 hours — adjust to taste
-};
