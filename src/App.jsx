@@ -1279,7 +1279,7 @@ function BookingWidget({ listing, onBookingMade, activeHoliday, siteContent }) {
 
   const submitDeposit=()=>{
     const v=parseInt(depositAmt.replace(/,/g,""),10);
-    if(!depositAmt||isNaN(v)||v<500){ setDepositErr("Minimum deposit is KES 500."); return; }
+    if(!depositAmt||isNaN(v)||v<1){ setDepositErr("Please enter a deposit amount of at least KES 1."); return; }
     if(v>=discountedTotal){ setDepositErr(`Enter an amount less than KES ${fmt(discountedTotal)} (the full total). Use "Reserve" above to pay in full.`); return; }
     setDepositErr(""); setShowDepositModal(true);
   };
@@ -1407,14 +1407,14 @@ function BookingWidget({ listing, onBookingMade, activeHoliday, siteContent }) {
         <div style={{marginTop:"0.9rem",padding:"1rem 1.1rem",background:"rgba(78,205,196,0.06)",border:`1px solid ${C.border}`,borderRadius:"8px",animation:"fadeIn 0.2s ease"}}>
           <div style={{fontSize:"0.65rem",letterSpacing:"0.18em",textTransform:"uppercase",color:C.gold,marginBottom:"0.7rem",fontWeight:600}}>Custom Deposit Amount</div>
           <div style={{fontSize:"0.78rem",color:C.muted,marginBottom:"0.7rem",lineHeight:1.6}}>
-            Full total is <strong style={{color:C.gold}}>KES {fmt(discountedTotal)}</strong>{holidayDiscount>0&&<span style={{color:C.success}}> (after {holidayDiscount}% holiday discount)</span>}. Enter how much you'd like to pay now — minimum KES 500.
+            Full total is <strong style={{color:C.gold}}>KES {fmt(discountedTotal)}</strong>{holidayDiscount>0&&<span style={{color:C.success}}> (after {holidayDiscount}% holiday discount)</span>}. Enter any amount — even KES 1 — to hold the dates. Balance is due at check-in.
           </div>
           <div style={{display:"flex",gap:"0.5rem",alignItems:"stretch"}}>
             <div style={{flex:1,position:"relative"}}>
               <span style={{position:"absolute",left:"0.8rem",top:"50%",transform:"translateY(-50%)",fontSize:"0.75rem",color:C.muted,fontWeight:500,pointerEvents:"none"}}>KES</span>
-              <input type="number" min="500" max={discountedTotal-1} value={depositAmt}
+              <input type="number" min="1" max={discountedTotal-1} value={depositAmt}
                 onChange={e=>{ setDepositAmt(e.target.value); setDepositErr(""); }}
-                placeholder="e.g. 5000"
+                placeholder="Any amount, e.g. 5000"
                 style={{width:"100%",padding:"0.75rem 0.8rem 0.75rem 2.8rem",background:"#fff",border:`1px solid ${depositErr?C.error:C.border}`,borderRadius:"5px",fontSize:"0.9rem",color:"#1C1C1C",outline:"none"}}
                 onFocus={e=>e.target.style.borderColor=C.gold}
                 onBlur={e=>e.target.style.borderColor=depositErr?C.error:C.border}/>
@@ -1427,9 +1427,16 @@ function BookingWidget({ listing, onBookingMade, activeHoliday, siteContent }) {
           {/* Quick picks */}
           {discountedTotal>0&&(
             <div style={{display:"flex",gap:"0.4rem",marginTop:"0.6rem",flexWrap:"wrap"}}>
-              {[0.25,0.5].map(pct=>{
-                const suggested=Math.round(discountedTotal*pct/100)*100;
-                if(suggested<500||suggested>=discountedTotal) return null;
+              {/* Quick-pick amounts */}
+              <button onClick={()=>{ setDepositAmt("1"); setDepositErr(""); }}
+                style={{padding:"0.3rem 0.7rem",background:"transparent",border:`1px solid ${C.border}`,borderRadius:"3px",fontSize:"0.68rem",color:C.muted,cursor:"pointer",transition:"all 0.15s"}}
+                onMouseEnter={e=>{e.target.style.borderColor=C.gold;e.target.style.color=C.gold;}}
+                onMouseLeave={e=>{e.target.style.borderColor=C.border;e.target.style.color=C.muted;}}>
+                KES 1 · Test
+              </button>
+              {[0.25,0.5,0.75].map(pct=>{
+                const suggested=Math.max(1, Math.round(discountedTotal*pct/100)*100);
+                if(suggested<=0||suggested>=discountedTotal) return null;
                 return (
                   <button key={pct} onClick={()=>{ setDepositAmt(String(suggested)); setDepositErr(""); }}
                     style={{padding:"0.3rem 0.7rem",background:"transparent",border:`1px solid ${C.border}`,borderRadius:"3px",fontSize:"0.68rem",color:C.muted,cursor:"pointer",transition:"all 0.15s"}}
