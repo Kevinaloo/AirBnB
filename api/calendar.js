@@ -14,7 +14,7 @@
 // ────────────────────────────────────────────────────────────────────
 
 import { createClient } from "@supabase/supabase-js";
-import { BRAND } from "./brand.config.js";
+import { BRAND } from "../lib/brand.config.js";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -90,7 +90,52 @@ function buildICS(listing, bookings) {
 export default async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
 
-  const listingId = new URL(req.url).searchParams.get("listing");
+  const params = new URL(req.url).searchParams;
+
+  // ── Import-proxy mode: /api/calendar?url=<external ical feed> ──────────
+  // Server-side fetch for external iCal feeds (Airbnb, Booking.com, VRBO).
+  // Browsers block cross-origin fetches to most OTA calendar URLs, so the
+  // Host Portal → Calendar Sync "import by URL" feature calls this instead.
+  const importUrl = params.get("url");
+  if (importUrl) {
+    const JCORS = { ...CORS, "Access-Control-Allow-Headers": "Content-Type", "Content-Type": "application/json" };
+    let parsed;
+    try { parsed = new URL(importUrl); } catch {
+      return new Response(JSON.stringify({ error: "Invalid URL" }), { status: 400, headers: JCORS });
+    }
+    if (!["http:", "https:"].includes(parsed.protocol)) {
+      return new Response(JSON.stringify({ error: "Only http/https URLs are allowed" }), { status: 400, headers: JCORS });
+    }
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    try {
+      const res = await fetch(parsed.toString(), {
+        signal: controller.signal,
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; CalendarSyncBot/1.0)", Accept: "text/calendar, text/plain, */*" },
+        redirect: "follow",
+      });
+      clearTimeout(timeout);
+      if (!res.ok) {
+        return new Response(JSON.stringify({ error: `Upstream calendar returned ${res.status}` }), { status: 502, headers: JCORS });
+      }
+      const buf = await res.arrayBuffer();
+      if (buf.byteLength > 2 * 1024 * 1024) {
+        return new Response(JSON.stringify({ error: "Calendar feed too large" }), { status: 502, headers: JCORS });
+      }
+      const text = new TextDecoder("utf-8").decode(buf);
+      if (!text.includes("BEGIN:VCALENDAR")) {
+        return new Response(JSON.stringify({ error: "That URL did not return a valid calendar (.ics) file." }), { status: 502, headers: JCORS });
+      }
+      return new Response(JSON.stringify({ text }), { status: 200, headers: JCORS });
+    } catch (err) {
+      clearTimeout(timeout);
+      const msg = err.name === "AbortError" ? "Calendar fetch timed out" : `Fetch failed: ${err.message}`;
+      return new Response(JSON.stringify({ error: msg }), { status: 502, headers: JCORS });
+    }
+  }
+
+  // ── Export mode: /api/calendar?listing=<id> (live iCal feed for OTAs) ──
+  const listingId = params.get("listing");
   if (!listingId) {
     return new Response("Missing ?listing= parameter", { status: 400, headers: CORS });
   }

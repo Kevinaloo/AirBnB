@@ -7731,7 +7731,7 @@ function ImportModal({ listing, platform, onClose, onImport }) {
     if (!url.trim()) { setErrMsg("Enter a valid calendar URL."); return; }
     setStatus("loading"); setErrMsg("");
     try {
-      const res = await fetch(`/api/ics-proxy?url=${encodeURIComponent(url.trim())}`);
+      const res = await fetch(`/api/calendar?url=${encodeURIComponent(url.trim())}`);
       const data = await res.json().catch(()=>({}));
       if (!res.ok || !data.text) {
         setErrMsg(data?.error || "Could not fetch that calendar URL.");
@@ -8078,7 +8078,7 @@ function ICalSyncManager({ listings, bookings, onListingUpdate }) {
     }
     setToast(null);
     try {
-      const res = await fetch(`/api/ics-proxy?url=${encodeURIComponent(cfg.source)}`);
+      const res = await fetch(`/api/calendar?url=${encodeURIComponent(cfg.source)}`);
       const data = await res.json().catch(()=>({}));
       if (!res.ok || !data.text) {
         setToast({msg:data?.error||"Sync failed — could not fetch that calendar.",type:"error"});
