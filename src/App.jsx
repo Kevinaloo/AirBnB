@@ -8116,6 +8116,23 @@ function ICalSyncManager({ listings, bookings, onListingUpdate }) {
         <p style={{fontSize:"0.82rem",color:C.muted,marginTop:"0.3rem",lineHeight:1.7,maxWidth:"580px"}}>
           Import blocked dates from Airbnb, Booking.com, VRBO and others. Export your calendar for any platform. Keep all your channels in sync.
         </p>
+        {/* Manual sync trigger — replaces the automatic cron on Vercel Hobby plan */}
+        <button onClick={async()=>{
+          setToast({msg:"Syncing all calendars…",type:"info"});
+          try{
+            const res=await fetch("/api/auto-sync",{method:"POST"});
+            const d=await res.json().catch(()=>({}));
+            const added=d.results?.reduce((a,r)=>a+(r.added||0),0)||0;
+            const freed=d.results?.reduce((a,r)=>a+(r.removed||0),0)||0;
+            setToast({msg:`Sync complete — ${added} date${added!==1?"s":""} blocked, ${freed} freed`,type:"success"});
+            // Reload listings to reflect any changes
+            window.location.reload();
+          }catch(e){
+            setToast({msg:"Sync failed: "+e.message,type:"error"});
+          }
+        }} style={{marginTop:"1rem",padding:"0.6rem 1.2rem",background:"transparent",border:`1px solid ${C.border}`,borderRadius:"6px",color:C.muted,fontSize:"0.78rem",fontWeight:600,cursor:"pointer",display:"inline-flex",alignItems:"center",gap:"0.5rem",transition:"all 0.2s"}} onMouseEnter={e=>{e.currentTarget.style.borderColor=C.gold;e.currentTarget.style.color=C.gold;}} onMouseLeave={e=>{e.currentTarget.style.borderColor=C.border;e.currentTarget.style.color=C.muted;}}>
+          🔄 Sync all calendars now
+        </button>
       </div>
 
       {/* How it works */}
