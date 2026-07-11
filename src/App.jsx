@@ -996,14 +996,16 @@ function PaymentModal({ listing, checkIn, checkOut, guests, onClose, onSuccess, 
         amount: total,
         ref: bookingRef,
       });
-      // PayHero returns reference or CheckoutRequestID
-      const extRef = data?.reference || data?.CheckoutRequestID || data?.checkout_request_id || bookingRef;
-      setPhRef(extRef);
+      // Always poll with our own bookingRef (external_reference we sent to PayHero)
+      // so the status lookup is consistent regardless of what PayHero echoes back.
+      setPhRef(bookingRef);
       setStep("waitPin");
       // Start polling after 6 s — give user time to see the prompt and enter PIN
-      setTimeout(()=>startPolling(extRef), 6000);
+      setTimeout(()=>startPolling(bookingRef), 6000);
     } catch(e) {
-      setErr(`STK push failed: ${e.message}. Check your PayHero credentials and try again.`);
+      // Show the exact PayHero error so the host can diagnose credential/channel issues
+      const msg = e.message || "STK push failed";
+      setErr(`${msg}. Check PAYHERO_USERNAME, PAYHERO_PASSWORD and PAYHERO_CHANNEL_ID in Vercel settings.`);
       setStep("form");
     }
   };
@@ -1017,20 +1019,24 @@ function PaymentModal({ listing, checkIn, checkOut, guests, onClose, onSuccess, 
       attempts++;
       try {
         const data = await phCheckStatus(ref);
-        const st = (data?.status || "").toUpperCase();
-        if(["SUCCESS","COMPLETE","COMPLETED"].includes(st)){
+        const st = (data?.status || data?.Status || "").toUpperCase();
+        // PayHero may return various success/fail strings across API versions
+        const isSuccess = ["SUCCESS","COMPLETE","COMPLETED","SUCCESSFUL"].includes(st);
+        const isFailed  = ["FAILED","CANCELLED","CANCELED","REJECTED","FAILURE"].includes(st);
+        if(isSuccess){
           clearInterval(pollRef.current);
           setStep("success");
-        } else if(["FAILED","CANCELLED","CANCELED","REJECTED"].includes(st)){
+        } else if(isFailed){
           clearInterval(pollRef.current);
-          setErr(data?.message || "Payment was cancelled or failed. Please try again.");
+          const reason = data?.message || data?.Message || data?.reason || "Payment was cancelled or failed.";
+          setErr(`${reason} Please try again.`);
           setStep("failed");
         } else if(attempts >= MAX){
           clearInterval(pollRef.current);
-          setErr(`Verification timed out. If you entered your PIN, contact us with ref: ${bookingRef}`);
+          setErr(`Verification timed out (ref: ${bookingRef}). If you entered your PIN successfully, contact us and we'll confirm manually.`);
           setStep("failed");
         } else {
-          setStatusMsg(`Waiting for M-Pesa confirmation… (${attempts}/${MAX})`);
+          setStatusMsg(`Verifying with M-Pesa… (${attempts}/${MAX})`);
         }
       } catch {
         // network blip — keep polling
