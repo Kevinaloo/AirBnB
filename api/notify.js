@@ -24,7 +24,7 @@ export default async (req) => {
 
   const pub = process.env.VAPID_PUBLIC_KEY;
   const priv = process.env.VAPID_PRIVATE_KEY;
-  const subject = process.env.VAPID_SUBJECT || "mailto:admin@shikazhomez.com";
+  const subject = process.env.VAPID_SUBJECT || "mailto:admin@shikazhomes.com";
   if (!pub || !priv) return json({ error: "Push not configured (missing VAPID keys)" }, 500);
 
   let body;

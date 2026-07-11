@@ -36,7 +36,7 @@ self.addEventListener("fetch", (e) => {
 self.addEventListener("push", (e) => {
   let data = {};
   try { data = e.data ? e.data.json() : {}; } catch { data = { body: e.data && e.data.text() }; }
-  const title = data.title || "Shikaz Homez";
+  const title = data.title || "Shikaz Homes";
   const options = {
     body: data.body || "You have a new notification.",
     icon: data.icon || "/favicon.svg",

@@ -17,8 +17,8 @@ export const BRAND = {
   // (name + accent) — name is the main word, nameAccent is italic & gradient.
   // Leave nameAccent "" to use the full name in a single style.
   name: "Shikaz",
-  nameAccent: "Homez",
-  fullName: "Shikaz Homez",
+  nameAccent: "Homes",
+  fullName: "Shikaz Homes",
 
   // ── Logo ────────────────────────────────────────────────────────
   // Set to a URL for an image logo, leave "" to use the text logo.
@@ -95,7 +95,7 @@ Formatting rules:
 - End responses with a helpful follow-up question when natural`,
 
   // ── Meta / SEO ──────────────────────────────────────────────────
-  metaTitle: "Shikaz Homez — Premium Short Stays",
+  metaTitle: "Shikaz Homes — Premium Short Stays",
   metaDescription: "Premium short-stay apartments, thoughtfully curated. Book direct and pay via M-Pesa.",
 
   // ── Emergency (SOS button) ──────────────────────────────────────

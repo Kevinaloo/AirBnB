@@ -171,7 +171,7 @@ export default async () => {
   if (alerts.length) {
     const vapidPub = process.env.VAPID_PUBLIC_KEY;
     const vapidPriv = process.env.VAPID_PRIVATE_KEY;
-    const vapidSub = process.env.VAPID_SUBJECT || "mailto:admin@shikazhomez.com";
+    const vapidSub = process.env.VAPID_SUBJECT || "mailto:admin@shikazhomes.com";
     let adminSubs = [];
     if (vapidPub && vapidPriv) {
       webpush.setVapidDetails(vapidSub, vapidPub, vapidPriv);
